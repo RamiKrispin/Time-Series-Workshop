@@ -14,22 +14,20 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Agenda
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+* Introduction to time series analysis and forecasting
+* Time series objects - introduction to the time series classes and their attributes
+* Descriptive analysis of time series
+* Linear regression-based forecasting models
+* The ARIMA family of models
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Admin
 
-```{r cars}
-summary(cars)
+All todays slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
+
+Downloading the workshop material from the terminal:
+```{bash, eval=FALSE}
+git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
