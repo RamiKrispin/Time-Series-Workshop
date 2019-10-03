@@ -53,3 +53,20 @@ Or lunch it on a docker container:
 > **Time series analysis** - is the process of extracting meaningful insights from time series data in order to learn about the past and predict the future
 
 **Note:** typically, the term time series data referred to regular time-series data.
+
+### Examples for time series data
+
+```{r}
+library(UKgrid)
+
+data(UKgrid)
+UKgrid <- extract_grid(type = "data.frame", start = 2018)
+TSstudio::ts_plot(UKgrid)
+
+
+library(SFOpassengers)
+data(SFOlanding)
+
+
+```
+
