@@ -1,7 +1,7 @@
 ---
 title: "Time Series Workshop"
 subtitle: "Bay Area useR Group"
-author: "Rami Krispin (@Rami_Krispin)"
+author: "Rami Krispin (@Rami_Krispin), Danton Noriega (@dantonnoriega)"
 date: "`r format(Sys.Date(), '%b %d, %Y')`"
 output: 
   html_document:
@@ -24,10 +24,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Admin
 
-All todays slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
+All todays' slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
 
 Downloading the workshop material from the terminal:
+
 ```{bash, eval=FALSE}
 git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 ```
 
+
+Or lunch it on a docker container:
+
+```{bash, eval=FALSE}
+
+```
+
+
+## Introduction to time series analysis and forecasting
+
+### Definitions
+
+> **Time series data** - is a sequence of values, each associate to a unique point in time
+
+> **Regular time series** - is a sequence of observations which were captured at equally spaced time intervals (e.g., every month, week, day, hour, etc.)
+
+> **Irregular time series** - or unevenly spaced time series, is a sequence of observations which were not captured on equally spaced time intervals (for example rainy days, earthquakes, etc.)
+
+> **Time series analysis** - is the process of extracting meaningful insights from time series data in order to learn about the past and predict the future
+
+**Note:** typically, the term time series data referred to regular time-series data.
