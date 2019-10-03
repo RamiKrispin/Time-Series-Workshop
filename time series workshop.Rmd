@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
 ```
 
 ## Agenda
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Admin
 
-All todays' slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
+All today's slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
 
 Downloading the workshop material from the terminal:
 
@@ -42,7 +42,7 @@ Or lunch it on a docker container:
 
 ## Introduction to time series analysis and forecasting
 
-### Definitions
+### Time series data
 
 > **Time series data** - is a sequence of values, each associate to a unique point in time
 
@@ -50,23 +50,35 @@ Or lunch it on a docker container:
 
 > **Irregular time series** - or unevenly spaced time series, is a sequence of observations which were not captured on equally spaced time intervals (for example rainy days, earthquakes, etc.)
 
-> **Time series analysis** - is the process of extracting meaningful insights from time series data in order to learn about the past and predict the future
+
 
 **Note:** typically, the term time series data referred to regular time-series data.
 
-### Examples for time series data
+### Examples of time series data
 
-```{r}
+```{r echo = TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 library(UKgrid)
 
 data(UKgrid)
-UKgrid <- extract_grid(type = "data.frame", start = 2018)
-TSstudio::ts_plot(UKgrid)
+UKgrid <- extract_grid(type = "data.frame", start = as.Date("2018-01-01"), end = as.Date("2018-01-31"))
+TSstudio::ts_plot(UKgrid, title = "The Demand for Electricity in the UK (Half-Hourly Intervals)", Ytitle = "MW", Xtitle = "Date")
+
+library(TSstudio)
 
 
-library(SFOpassengers)
-data(SFOlanding)
+TSstudio::ts_plot(USgas, title = "US Monthly Natural Gas Consumption", Ytitle = "Billion Cubic Feet", Xtitle = "Date")
+TSstudio::ts_plot(USVSales, title = "US Monthly Total Vehicle Sales", Ytitle = "Thousands of Units", Xtitle = "Date")
+
 
 
 ```
 
+
+### Time Series Analysis
+> **Time series analysis** - is the process of extracting meaningful insights from time series data in order to learn about the past and predict the future
+
+
+
+```{r echo=FALSE, out.width="850px"}
+knitr::include_graphics("images/Time Series Analysis Workflow.png")
+```
