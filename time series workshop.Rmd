@@ -181,3 +181,77 @@ A typical time series object should have the following attributes:
 
 Where the frequency of the series represents the units of the cycle. For example, for monthly series, the frequency units are the month of the year, and the cycle units are the years. Similarly, for daily series, the frequency units could be the day of the year, and the cycle units are also the years. 
 
+The **stats** package provides a set of functions for handling and extracting information from a `ts` object. The `frequency` and `cycle` functions, as their names implay return the frequency and the cycle, respectivly, of the object. Let's load the `USgas` series from the `TSstudio` package  and apply those functions:
+
+```{r}
+library(TSstudio)
+data(USgas)
+
+class(USgas)
+is.ts(USgas)
+frequency(USgas)
+cycle(USgas)
+```
+
+The `time` function returns the series index or timestamp:
+
+```{r}
+head(time(USgas))
+```
+
+The `deltat` function returns the length of series' time interval (which is equivalent to 1/frequency):
+
+```{r}
+deltat(USgas)
+```
+
+Similarly, the `start` and `end` functions return the starting and ending time of the series, respectively:
+
+```{r}
+start(USgas)
+end(USgas)
+```
+
+Where the left number represents the cycle units, and the right side represents the frequency units of the series. The `tsp` function returns both the start and end of the series and its frequency:
+
+```{r}
+tsp(USgas)
+```
+
+Last but not least, the `ts_info` function from the **TSstudio** package returns a concise summary of the series:
+
+```{r}
+ts_info(USgas)
+```
+
+
+
+
+### Creating a ts object
+
+The `ts` function allows to create a `ts` object from a single vector and a `mts` object from a multiple vectors (or matrix). By defining the start (or end) and frequency of the series, the function generate the object index. In the following example we will load the `US_indicators` dataset from the TSstudio package and convert it to a ts object. The `US_indicators` is a `data.frame` with the monthly vehicle sales and unemployment rate in the US since 1976:
+
+
+```{r}
+data(US_indicators)
+
+head(US_indicators)
+```
+
+
+```{r}
+mts_obj <- ts(data = US_indicators[, c("Vehicle Sales", "Unemployment Rate")], 
+              start = c(1976, 1),
+              frequency = 12)
+
+ts_info(mts_obj)
+```
+
+### How to define the start point of series?
+
+```{r}
+DT::datatable(data.frame(frequency = c(4, 12, 52, 365),
+                         cycle_units = c("Year", "Year", "Year", "Year") ,
+                         frequency_units = c("Quarter", "Month", "Week", "Day of the year")))
+```
+
