@@ -2,13 +2,48 @@
 title: "Time Series Workshop"
 subtitle: "Bay Area useR Group"
 author: "Rami Krispin (@Rami_Krispin), Danton Noriega (@dantonnoriega)"
-date: "`r format(Sys.Date(), '%b %d, %Y')`"
+date: "`r format(as.Date('2019-10-05'), '%b %d, %Y')`"
 output: 
   html_document:
     toc: true
     toc_float: true
     toc_depth: 3
 ---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+td {  /* Table  */
+  font-size: 8px;
+}
+h1.title {
+  font-size: 38px;
+  color: Black;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: Blue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: Blue;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
@@ -22,22 +57,24 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, mes
 * Linear regression-based forecasting models
 * The ARIMA family of models
 
-## Assumptions
+### Assumptions
 
 * Some background in R
 * Basic knowledge in probability
 * Familiar with linear regression 
 
-## Why R
+### Why R?
 
 * Statistical programming language 
 * A vast amount of [packages](https://cran.r-project.org/web/views/TimeSeries.html) for time series analysis
 * The [forecast](http://pkg.robjhyndman.com/forecast/) package (and soon the [fable](https://fable.tidyverts.org/) package)
 
 
-## Admin
+### Admin
 
-All today's slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
+#### Workshop material
+
+All today's slides, code, and rmarkdown files are available on [GitHub](https://github.com/RamiKrispin/Time-Series-Workshop)
 
 Downloading the workshop material from the terminal:
 
@@ -46,7 +83,7 @@ git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 ```
 
 
-Or lunch it on a docker container:
+Or lunch it from a docker container:
 
 ```{bash, eval=FALSE}
 
@@ -95,3 +132,10 @@ TSstudio::ts_plot(USVSales, title = "US Monthly Total Vehicle Sales", Ytitle = "
 ```{r echo=FALSE, out.width="850px"}
 knitr::include_graphics("images/Time Series Analysis Workflow.png")
 ```
+
+
+With time series analysis, you can answer questions such as:
+
+* How many vehicles, **approximately**, going to be sold in the US in the next 12 months?
+* What will be the **estimated** demand for natural gas in the US in the next five years?
+* **Generally**, what will be the demand for electricity in the UK during the next 24 hours?
