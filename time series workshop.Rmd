@@ -22,6 +22,19 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, mes
 * Linear regression-based forecasting models
 * The ARIMA family of models
 
+## Assumptions
+
+* Some background in R
+* Basic knowledge in probability
+* Familiar with linear regression 
+
+## Why R
+
+* Statistical programming language 
+* A vast amount of [packages](https://cran.r-project.org/web/views/TimeSeries.html) for time series analysis
+* The [forecast](http://pkg.robjhyndman.com/forecast/) package (and soon the [fable](https://fable.tidyverts.org/) package)
+
+
 ## Admin
 
 All today's slides, code, and rmarkdown files are available [here](https://github.com/RamiKrispin/Time-Series-Workshop)
@@ -48,7 +61,7 @@ Or lunch it on a docker container:
 
 > **Regular time series** - is a sequence of observations which were captured at equally spaced time intervals (e.g., every month, week, day, hour, etc.)
 
-> **Irregular time series** - or unevenly spaced time series, is a sequence of observations which were not captured on equally spaced time intervals (for example rainy days, earthquakes, etc.)
+> **Irregular time series** - or unevenly spaced time series, is a sequence of observations which were not captured on equally spaced time intervals (for example rainy days, earthquakes, clinical trials, etc.)
 
 
 
