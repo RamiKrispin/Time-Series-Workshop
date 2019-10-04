@@ -162,3 +162,22 @@ With time series analysis, you can answer questions such as:
 * **Generally**, what will be the demand for electricity in the UK during the next 24 hours?
 
 
+## Time series objects
+
+There are multiple classes in R for time-series data, the most common types are:
+
+* The `ts` class for regular time-series data, and `mts` class for multiple time seires objects , the most common class for time series data
+* The `xts` and `zoo` classes for both regular and irregular time series data, mainly popular in the financial field
+* The `tsibble` class, a tidy format for time series data, support both regular and irregular time-series data
+
+### The attribute of time series object
+
+A typical time series object should have the following attributes:
+
+* A vector or matrix objects with sequential observations
+* Index or timestamp
+* Frequency units
+* Cycle units
+
+Where the frequency of the series represents the units of the cycle. For example, for monthly series, the frequency units are the month of the year, and the cycle units are the years. Similarly, for daily series, the frequency units could be the day of the year, and the cycle units are also the years. 
+
