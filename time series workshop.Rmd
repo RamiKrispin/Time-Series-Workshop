@@ -247,11 +247,93 @@ mts_obj <- ts(data = US_indicators[, c("Vehicle Sales", "Unemployment Rate")],
 ts_info(mts_obj)
 ```
 
-### How to define the start point of series?
+### How to define the start and frequency arguments?
+
+Series Type | Cycle Units | Frequency Units| Frequency
+------------|-------------|----------------|-----------
+Quarterly | Years | Quarter of the year | 4
+Monthly | Years | Month of the year | 12
+Weekly | Years | Week of the year | 52
+Daily | Years | Day of the year | 365
+
+
+What if you have more granular time series data such as half-hour, 15 or five minutes intervals?
+
+Below me when needed to work with daily time series using `ts` object:
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("http://giphygifs.s3.amazonaws.com/media/eIPM3j6YXHKXC/giphy.gif")
+```
+
+### The disadvantages of the ts object
+ 
+The ts object was designed for work with monthly, quarterly, or yearly series that have only two-time components (e.g., year and month). Yet, more granular series (high frequency) may have more than two-time components. A common example is a daily series that has the following time attributes:
+
+* Year
+* Month
+* Day of the year
+* Day of the week
+
+When going to the hourly or minute levels, this is even adding more components such as the hour, minute, etc.
+
+The `zoo`, `xts` classes and now the `tsibble` class provide solution for this issue.  
+
+
+### The tsibble class
+
+"The **tsibble** package provides a data infrastructure for tidy temporal data with wrangling tools..." 
+
+In other words, the `tsibble` object allows you to work with a data frame alike (i.e., `tbl` object) with a time awareness attribute. The key characteristics of this class:
+
+* It has a date/time object as an index
+* Using key to store multiple time series objects
+* A `tbl` object - can apply any of the normal tools to reformat, clean or modify `tbl` object such as `dplyr` functions
+
+The reaction of me and my colegues when the tsibble **package** was released:
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("https://media.giphy.com/media/Yb3d5B1zwuhCo/giphy.gif")
+```
+
+
+### Creating a tsibble object
 
 ```{r}
-DT::datatable(data.frame(frequency = c(4, 12, 52, 365),
-                         cycle_units = c("Year", "Year", "Year", "Year") ,
-                         frequency_units = c("Quarter", "Month", "Week", "Day of the year")))
+library(UKgrid)
+
+data(UKgrid)
+
+class(UKgrid)
+
+head(UKgrid)
 ```
+```{r}
+library(dplyr)
+
+uk_grid <- UKgrid %>% 
+  dplyr::select(time = TIMESTAMP, 
+                net_demand = ND, 
+                wind_gen = EMBEDDED_WIND_GENERATION, 
+                solar_gen = EMBEDDED_SOLAR_GENERATION)
+```
+
+
+
+## Descriptive analysis of time series
+
+Like most common fields of statistics and machine learning, the goal of the descriptive analysis is to reveal meaningful insights about the series and the key components of its structure.
+
+### The time series components
+
+
+
+* Trend
+* Cycle
+* Seasonal
+* Irregular
+
+```{r}
+ts_decompose(USgas)
+```
+
 
