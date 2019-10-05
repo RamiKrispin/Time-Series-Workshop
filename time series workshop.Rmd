@@ -8,6 +8,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 3
+runtime: shiny
 ---
 
 <style type="text/css">
@@ -47,6 +48,9 @@ pre { /* Code block - determines code spacing between lines */
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
+library(TSstudio)
+library(UKgrid)
+library(shiny)
 ```
 
 ## Agenda
@@ -159,7 +163,7 @@ knitr::include_graphics("TSstudio Structure.png")
 
 ### Examples of time series data
 
-```{r echo = TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+```{r  echo=FALSE, warning=FALSE, message=FALSE}
 library(UKgrid)
 
 data(UKgrid)
@@ -334,12 +338,11 @@ head(UKgrid)
 ```{r}
 library(dplyr)
 library(tsibble)
+data(UKgrid)
 uk_grid <- UKgrid %>% 
   dplyr::select(time = TIMESTAMP, 
-                net_demand = ND, 
-                wind_gen = EMBEDDED_WIND_GENERATION, 
-                solar_gen = EMBEDDED_SOLAR_GENERATION) %>%
-  as_tsibble(index = time)
+                net_demand = ND) %>%
+  tsibble::as_tsibble(index = time)
   
 
 head(uk_grid)
@@ -348,7 +351,7 @@ class(uk_grid)
 
 index(uk_grid)
 
-interval(uk_grid)
+tsibble::interval(uk_grid)
 
 ```
 
@@ -371,24 +374,53 @@ plot.ts(USVSales,
         xlab = "Date")
 ```
 
-Alternatively, the `ts_plot` function from the **TSstudio** package provides an interactive visualization for time series object (`ts`, `xts`, `zoo`, `tsibble`, ets.) using the **plotly** package functions:
+Alternatively, the `ts_plot` function from the **TSstudio** package provides an interactive visualization for time series object (`ts`, `xts`, `zoo`, `tsibble`, ets.). This function using the **plotly** package plotting engine:
 
 ```{r}
 ts_plot(USVSales, 
         title = "US Monthly Total Vehicle Sales",
         Ytitle = "Thousands of units",
-        Xtitle = "Date")
+        Xtitle = "Date",
+        slider = TRUE)
 ```
+
+The main advantage of using interactive data visualization tools that it allows you to zoom in the data with a click of a button. This is super useful when working with data and in particular, with time-series data. 
+
+The [dygraphs](https://rstudio.github.io/dygraphs/) package is another great tool for visualization time series data:
+
+```{r}
+library(dygraphs)
+
+dygraph(USVSales, 
+        main = "US Monthly Total Vehicle Sales",
+        ylab = "Thousands of units",
+        xlab = "Date") %>% 
+  dyRangeSelector()
+```
+
+
 
 
 ### The time series components
 
+Time series data, typically, would have two types of patterns:
 
+**Structural patterns:**
 
-* Trend
-* Cycle
-* Seasonal
-* Irregular
+* **Trend** - define the general growth of the series and its rate (e.g., linear, exponential, etc.)
+* **Cycle** - derived from the broad definition of a cycle in macroeconomics. A cycle can be described as a sequence of repeatable events over time, where the starting point of a cycle is at a local minimum of the series and the ending point is at the next one, and the ending point of one cycle is the starting point of the following cycle.
+* **Seasonal** - define the variation of the series that related to the frequency units of the series 
+
+**Nonstructural patterns**
+
+The **irregular** component - which include any other patterns that are not captured by the trend, cycle, and seasonal components. For example structural changes, non-seasonal holidays effect, etc.
+
+Together, the structural and non-structural patterns compounding the series, which can be formalized by the following expressions:
+
+* $Y_t = T_t + C_t + S_t + I_t$, when the series has an additive structure, or
+
+* $Y_t = T_t \times C_t \times S_t \times I_t$, when the series has a multiplicative structure
+
 
 ```{r}
 ts_decompose(USgas)
@@ -399,6 +431,222 @@ ts_decompose(USgas)
 
 ### Seasonal analysis
 
+```{r}
+ts_seasonal(USgas, type = "normal")
+ts_seasonal(USgas, type = "cycle")
+ts_seasonal(USgas, type = "box")
+```
+
+```{r}
+
+USgas_decompose <- USgas - decompose(USgas)$trend
+ts_seasonal(USgas_decompose, type = "all")
+```
+
+
+
+
+```{r}
+ts_heatmap(USgas, color = "Reds")
+```
+
+
+```{r}
+ts_heatmap(USVSales, color = "Reds")
+```
+
+```{r}
+ts_surface(USgas)
+```
+
+
+
+```{r}
+ts_polar(USgas)
+```
+
 ### Correlation Analysis
 
+
+```{r}
+UKgrid_daily <- extract_grid(type = "ts", aggregate = "daily")
+
+acf(UKgrid_daily)
+pacf(UKgrid_daily)
+
+ts_cor(UKgrid_daily, lag.max = 365 * 2)
+
+
+
+ts_cor(UKgrid_daily, lag.max = 365 * 2, seasonal_lags = 7)
+```
+
+```{r}
+ts_lags(USgas)
+```
+
+```{r}
+ts_lags(USgas, lags = c(12, 24, 36))
+```
+
 ## Forecasting with linear regression
+
+
+```{r regression, echo=FALSE}
+
+inputPanel(
+  selectInput("select_series", label = "Select the Series:",
+              choices = c("USgas", "USVSales", "AirPassengers"), selected = "USgas",
+              width = "600px"),
+  
+  checkboxGroupInput(inputId = "features", label = "Select the Model Features", 
+                choices = c("Trend", "Seasonal", "Polynomial", "Lags"), selected = "Trend"),
+    sliderInput("reg_test", "Set the Testing Length:",
+                  min = 1, max = 60,
+                  value = 12),
+        sliderInput("reg_h", "Set the Forecasting Horizon:",
+                  min = 1, max = 60,
+                  value = 60),
+  
+   sliderInput("reg_pol", "Set the Polynomial Level:",
+                  min = 0, max = 3,
+                  value = 2,
+               step = 0.1)
+  
+
+
+)
+
+# plotly::renderPlotly({
+#   if(input$select_series == series_names[1]){
+#     ts.obj <- us_app_ts
+#     ts.df <- us_app
+#     ts.fc <- us_app_fc
+#   } else if(input$select_series == series_names[2]){
+#     ts.obj <- ja_app_ts
+#     ts.df <- ja_app
+#     ts.fc <- ja_app_fc
+#   } else if(input$select_series == series_names[3]){
+#     ts.obj <- ja_sub_ts
+#     ts.df <- ja_sub
+#     #ts.fc <- ja_app_fc
+#   } else if(input$select_series == series_names[4]){
+#     ts.obj <- us_num_sub_ts
+#     ts.df <- us_num_sub
+#   }
+#   train <- test <- train_df <- test_df <- NULL
+#   ts_par <- TSstudio::ts_split(ts.obj = ts.obj, sample.out = input$reg_test)
+#   train <- ts_par$train
+#   test <- ts_par$test
+#   
+#   train_df <- ts.df[1:(nrow(ts.df) - input$reg_test), ]
+#   test_df <- ts.df[(nrow(ts.df) - input$reg_test + 1):nrow(ts.df), ]
+#   
+#   
+#   if(is.null(input$features)){
+#     p <- TSstudio::ts_plot(ts.obj = ts.obj)
+#   } else{
+#   
+#     f <- NULL
+#   
+#     if("Trend" %in% input$features){
+#       f <- c(f, "trend")
+#     }
+#     
+#      if("Seasonal" %in% input$features){
+#       f <- c(f, "season")
+#      }
+#     
+#      if("Polynomial" %in% input$features){
+#       f <- c(f, paste("I(trend ^ ", input$reg_pol,")", sep = ""))
+#      }
+#     
+#     if("Holidays" %in% input$features){
+#       f <- c(f, "flag")
+#       tslm_f <- paste("train ~", paste(f, collapse = "+"), sep = " ")
+#       md <- forecast::tslm(as.formula(tslm_f), data = train_df)
+#       fc <- forecast::forecast(md, h = input$reg_test, newdata = test_df$flag)
+#     } else {
+#       tslm_f <- paste("train ~ ", paste(f, collapse = "+"), sep = " ")
+#        md <- forecast::tslm(as.formula(tslm_f))
+#        fc <- forecast::forecast(md, h = input$reg_test)
+#     }
+#   
+#     
+#     if(input$reg_maYoY){
+#       ma_md <- ma4w(train,  h = input$reg_test)
+#       p <- TSstudio::test_forecast(ts.obj, forecast.obj = fc, test = test) %>% 
+#         plotly::add_lines(x = time(ma_md), y = as.numeric(ma_md), name = "YoY 4W MA", line = list(color = "purple")) %>%
+#         plotly::layout(legend = list(x = 0.1, y = 0.9))
+#     } else{
+#        p <- TSstudio::test_forecast(ts.obj, forecast.obj = fc, test = test) %>% 
+#          plotly::layout(legend = list(x = 0.1, y = 0.9))
+#        }
+#     }
+# 
+# })
+# 
+# 
+# 
+# plotly::renderPlotly({
+#   if(input$select_series == series_names[1]){
+#     ts.obj <- us_app_ts
+#     ts.df <- us_app
+#     ts.fc <- us_app_fc
+#   } else if(input$select_series == series_names[2]){
+#     ts.obj <- ja_app_ts
+#     ts.df <- ja_app
+#     ts.fc <- ja_app_fc
+#   } else if(input$select_series == series_names[3]){
+#     ts.obj <- ja_sub_ts
+#   } else if(input$select_series == series_names[4]){
+#     ts.obj <- us_num_sub_ts
+#   }
+# 
+#  if(is.null(input$features)){
+#     p <- TSstudio::ts_plot(ts.obj = ts.obj)
+#   } else{
+#   
+#     f <- NULL
+#   
+#     if("Trend" %in% input$features){
+#       f <- c(f, "trend")
+#     }
+#     
+#      if("Seasonal" %in% input$features){
+#       f <- c(f, "season")
+#      }
+#     
+#      if("Polynomial" %in% input$features){
+#       f <- c(f, paste("I(trend ^ ", input$reg_pol,")", sep = ""))
+#     }
+#   
+#     
+#     if("Holidays" %in% input$features){
+#       f <- c(f, "flag")
+#       tslm_f <- paste("ts.obj ~", paste(f, collapse = "+"), sep = " ")
+#       md <- forecast::tslm(as.formula(tslm_f), data = ts.df)
+#       fc <- forecast::forecast(md, h = input$reg_h, newdata = ts.fc$flag[1:input$reg_h])
+#     } else {
+#       tslm_f <- paste("ts.obj ~ ", paste(f, collapse = "+"), sep = " ")
+#        md <- forecast::tslm(as.formula(tslm_f))
+#        fc <- forecast::forecast(md, h = input$reg_h)
+#     }
+#     
+# 
+#   }
+#   
+#   
+#   if(input$reg_maYoY){
+#       ma_md <- ma4w(ts.obj,  h = input$reg_h)
+#      p <- TSstudio::plot_forecast(fc) %>% 
+#         plotly::add_lines(x = time(ma_md), y = as.numeric(ma_md), name = "YoY 4W MA",
+#                           line = list(color = "purple", dash = "dash")) %>%
+#         plotly::layout(legend = list(x = 0.1, y = 0.9))
+#     } else{
+#        p <- TSstudio::plot_forecast(fc) %>%
+#       plotly::layout(legend = list(x = 0.1, y = 0.9))
+#        } 
+#   
+# })
+```
