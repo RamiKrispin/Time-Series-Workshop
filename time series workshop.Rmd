@@ -59,6 +59,15 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, mes
 
 Today, we will mainly focus on methods for analyzing and forecasting regular time-series data with seasonality patterns
 
+### Quick pool
+
+* Used R?
+* Feel comfortable with linear regression?
+* Familiar with the forecast package?
+* Used ggplot2 or plotly?
+
+
+
 ### Assumptions
 
 * Some background in R
@@ -336,13 +345,41 @@ uk_grid <- UKgrid %>%
 head(uk_grid)
 
 class(uk_grid)
-```
 
+index(uk_grid)
+
+interval(uk_grid)
+
+```
 
 
 ## Descriptive analysis of time series
 
-Like most common fields of statistics and machine learning, the goal of the descriptive analysis is to reveal meaningful insights about the series and the key components of its structure.
+Like most common fields of statistics and machine learning, the goal of the descriptive analysis is to reveal meaningful insights about the series with the use of descriptive statistics and data visualization tools.
+
+### Plotting time series object
+
+The `plot` function or `plot.ts` functions are R built-in functions for plotting time series object:
+
+
+```{r}
+data("USVSales")
+
+plot.ts(USVSales, 
+        main = "US Monthly Total Vehicle Sales",
+        ylab = "Thousands of units",
+        xlab = "Date")
+```
+
+Alternatively, the `ts_plot` function from the **TSstudio** package provides an interactive visualization for time series object (`ts`, `xts`, `zoo`, `tsibble`, ets.) using the **plotly** package functions:
+
+```{r}
+ts_plot(USVSales, 
+        title = "US Monthly Total Vehicle Sales",
+        Ytitle = "Thousands of units",
+        Xtitle = "Date")
+```
+
 
 ### The time series components
 
@@ -357,4 +394,11 @@ Like most common fields of statistics and machine learning, the goal of the desc
 ts_decompose(USgas)
 ```
 
+### Decomposition of time series object
 
+
+### Seasonal analysis
+
+### Correlation Analysis
+
+## Forecasting with linear regression
