@@ -8,7 +8,6 @@ output:
     toc: true
     toc_float: true
     toc_depth: 3
-runtime: shiny
 ---
 
 <style type="text/css">
@@ -81,7 +80,7 @@ Today, we will mainly focus on methods for analyzing and forecasting regular tim
 ### Why R?
 
 ```{r echo=FALSE, out.width="650px"}
-knitr::include_graphics("Time Series with R.png")
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series with R.png")
 ```
 
 
@@ -110,13 +109,6 @@ git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 ```
 
 
-Or lunch it from a docker container:
-
-```{bash, eval=FALSE}
-
-```
-
-
 ## Introduction to time series analysis
 
 Time series analysis is commonly used in many fields of science, such as economics, finance, physics, engineering, and astronomy.  The usage of time series analysis to understand past events and to predict future ones did not start with the introduction of the stochastic process during the past century. Ancient civilizations such as the Greeks, Romans, or Mayans, researched and learned how to utilize cycled events such as weather and astronomy to predict future events. 
@@ -135,7 +127,7 @@ This process includes the following steps:
 Generally, in R this process will look like this:
 
 ```{r echo=FALSE, out.width="850px"}
-knitr::include_graphics("images/Time Series Analysis Workflow.png")
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series Analysis Workflow.png")
 ```
 
 Of course, there are more great packages that could be part of this process such as [zoo](http://zoo.r-forge.r-project.org/), [xts](https://github.com/joshuaulrich/xts), [bsts](https://cran.r-project.org/web/packages/bsts/index.html), [forecastHybird](https://gitlab.com/dashaub/forecastHybrid), [prophet](https://facebook.github.io/prophet/docs/quick_start.html#r-api), etc.
@@ -146,7 +138,7 @@ The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set o
 
 
 ```{r echo=FALSE, out.width="850px"}
-knitr::include_graphics("TSstudio Structure.png")
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/TSstudio Structure.png")
 ```
 
 
@@ -491,6 +483,12 @@ ts_lags(USgas, lags = c(12, 24, 36))
 
 ## Forecasting with linear regression
 
+Big misconception 
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/linear models.png")
+```
+
 
 ```{r regression, echo=FALSE}
 
@@ -499,154 +497,166 @@ inputPanel(
               choices = c("USgas", "USVSales", "AirPassengers"), selected = "USgas",
               width = "600px"),
   
-  checkboxGroupInput(inputId = "features", label = "Select the Model Features", 
-                choices = c("Trend", "Seasonal", "Polynomial", "Lags"), selected = "Trend"),
-    sliderInput("reg_test", "Set the Testing Length:",
-                  min = 1, max = 60,
-                  value = 12),
-        sliderInput("reg_h", "Set the Forecasting Horizon:",
-                  min = 1, max = 60,
-                  value = 60),
+  selectInput("select_plot", label = "Plot Type",
+              choices = c("Plot", "Decompose", "Seasonal", "Heatmap","Lags", "P/ACF"), selected = "Plot",
+              width = "600px")
   
-   sliderInput("reg_pol", "Set the Polynomial Level:",
-                  min = 0, max = 3,
-                  value = 2,
-               step = 0.1)
-  
-
-
 )
 
-# plotly::renderPlotly({
-#   if(input$select_series == series_names[1]){
-#     ts.obj <- us_app_ts
-#     ts.df <- us_app
-#     ts.fc <- us_app_fc
-#   } else if(input$select_series == series_names[2]){
-#     ts.obj <- ja_app_ts
-#     ts.df <- ja_app
-#     ts.fc <- ja_app_fc
-#   } else if(input$select_series == series_names[3]){
-#     ts.obj <- ja_sub_ts
-#     ts.df <- ja_sub
-#     #ts.fc <- ja_app_fc
-#   } else if(input$select_series == series_names[4]){
-#     ts.obj <- us_num_sub_ts
-#     ts.df <- us_num_sub
-#   }
-#   train <- test <- train_df <- test_df <- NULL
-#   ts_par <- TSstudio::ts_split(ts.obj = ts.obj, sample.out = input$reg_test)
-#   train <- ts_par$train
-#   test <- ts_par$test
-#   
-#   train_df <- ts.df[1:(nrow(ts.df) - input$reg_test), ]
-#   test_df <- ts.df[(nrow(ts.df) - input$reg_test + 1):nrow(ts.df), ]
-#   
-#   
-#   if(is.null(input$features)){
-#     p <- TSstudio::ts_plot(ts.obj = ts.obj)
-#   } else{
-#   
-#     f <- NULL
-#   
-#     if("Trend" %in% input$features){
-#       f <- c(f, "trend")
-#     }
-#     
-#      if("Seasonal" %in% input$features){
-#       f <- c(f, "season")
-#      }
-#     
-#      if("Polynomial" %in% input$features){
-#       f <- c(f, paste("I(trend ^ ", input$reg_pol,")", sep = ""))
-#      }
-#     
-#     if("Holidays" %in% input$features){
-#       f <- c(f, "flag")
-#       tslm_f <- paste("train ~", paste(f, collapse = "+"), sep = " ")
-#       md <- forecast::tslm(as.formula(tslm_f), data = train_df)
-#       fc <- forecast::forecast(md, h = input$reg_test, newdata = test_df$flag)
-#     } else {
-#       tslm_f <- paste("train ~ ", paste(f, collapse = "+"), sep = " ")
-#        md <- forecast::tslm(as.formula(tslm_f))
-#        fc <- forecast::forecast(md, h = input$reg_test)
-#     }
-#   
-#     
-#     if(input$reg_maYoY){
-#       ma_md <- ma4w(train,  h = input$reg_test)
-#       p <- TSstudio::test_forecast(ts.obj, forecast.obj = fc, test = test) %>% 
-#         plotly::add_lines(x = time(ma_md), y = as.numeric(ma_md), name = "YoY 4W MA", line = list(color = "purple")) %>%
-#         plotly::layout(legend = list(x = 0.1, y = 0.9))
-#     } else{
-#        p <- TSstudio::test_forecast(ts.obj, forecast.obj = fc, test = test) %>% 
-#          plotly::layout(legend = list(x = 0.1, y = 0.9))
-#        }
-#     }
-# 
-# })
-# 
-# 
-# 
-# plotly::renderPlotly({
-#   if(input$select_series == series_names[1]){
-#     ts.obj <- us_app_ts
-#     ts.df <- us_app
-#     ts.fc <- us_app_fc
-#   } else if(input$select_series == series_names[2]){
-#     ts.obj <- ja_app_ts
-#     ts.df <- ja_app
-#     ts.fc <- ja_app_fc
-#   } else if(input$select_series == series_names[3]){
-#     ts.obj <- ja_sub_ts
-#   } else if(input$select_series == series_names[4]){
-#     ts.obj <- us_num_sub_ts
-#   }
-# 
-#  if(is.null(input$features)){
-#     p <- TSstudio::ts_plot(ts.obj = ts.obj)
-#   } else{
-#   
-#     f <- NULL
-#   
-#     if("Trend" %in% input$features){
-#       f <- c(f, "trend")
-#     }
-#     
-#      if("Seasonal" %in% input$features){
-#       f <- c(f, "season")
-#      }
-#     
-#      if("Polynomial" %in% input$features){
-#       f <- c(f, paste("I(trend ^ ", input$reg_pol,")", sep = ""))
-#     }
-#   
-#     
-#     if("Holidays" %in% input$features){
-#       f <- c(f, "flag")
-#       tslm_f <- paste("ts.obj ~", paste(f, collapse = "+"), sep = " ")
-#       md <- forecast::tslm(as.formula(tslm_f), data = ts.df)
-#       fc <- forecast::forecast(md, h = input$reg_h, newdata = ts.fc$flag[1:input$reg_h])
-#     } else {
-#       tslm_f <- paste("ts.obj ~ ", paste(f, collapse = "+"), sep = " ")
-#        md <- forecast::tslm(as.formula(tslm_f))
-#        fc <- forecast::forecast(md, h = input$reg_h)
-#     }
-#     
-# 
-#   }
-#   
-#   
-#   if(input$reg_maYoY){
-#       ma_md <- ma4w(ts.obj,  h = input$reg_h)
-#      p <- TSstudio::plot_forecast(fc) %>% 
-#         plotly::add_lines(x = time(ma_md), y = as.numeric(ma_md), name = "YoY 4W MA",
-#                           line = list(color = "purple", dash = "dash")) %>%
-#         plotly::layout(legend = list(x = 0.1, y = 0.9))
-#     } else{
-#        p <- TSstudio::plot_forecast(fc) %>%
-#       plotly::layout(legend = list(x = 0.1, y = 0.9))
-#        } 
-#   
-# })
+
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if(input$select_plot == "Plot"){
+    p <- TSstudio::ts_plot(ts.obj = ts.obj)
+  } else if(input$select_plot == "Decompose"){
+    p <- TSstudio::ts_decompose(ts.obj = ts.obj)
+  } else if(input$select_plot == "Seasonal"){
+    p <- TSstudio::ts_seasonal(ts.obj = ts.obj, type = "all")
+  } else if(input$select_plot == "Lags"){
+    p <- TSstudio::ts_lags(ts.obj = ts.obj)
+  } else if(input$select_plot == "P/ACF"){
+    p <- TSstudio::ts_cor(ts.obj = ts.obj, lag.max = 36)
+  } else if(input$select_plot == "Heatmap"){
+    p <- TSstudio::ts_heatmap(ts.obj = ts.obj)
+  }
+  return(p)
+})
+
+
+inputPanel(checkboxGroupInput(inputId = "features", label = "Select the Model Features",
+                              choices = c("Linear Trend", "Seasonal", "Polynomial", "Seasonal Lag", "Log Transformation"), selected = "Linear Trend"),
+           # sliderInput("reg_test", "Set the Testing Length:",
+           #               min = 1, max = 60,
+           #               value = 12),
+           sliderInput("reg_h", "Set the Forecasting Horizon:",
+                       min = 1, max = 60,
+                       value = 12),
+           
+           sliderInput("reg_pol", "Set the Polynomial Level:",
+                       min = 0, max = 3,
+                       value = 2,
+                       step = 0.1)
+           
+)
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if("Linear Trend" %in% input$features){
+    l_trend <- TRUE
+  } else {
+    l_trend <- FALSE
+  }
+  
+  if("Seasonal" %in% input$features){
+    season <- "month"
+  } else {
+    season <-NULL
+  }
+  
+  
+  if("Polynomial" %in% input$features){
+    pol <- input$reg_pol
+  } else {
+    pol <- FALSE
+  }
+  
+  if("Seasonal Lag" %in% input$features){
+    lag <- 12
+  } else {
+    lag <- NULL
+  }
+  
+  
+  if("Log Transformation" %in% input$features){
+    scale <- "log"
+  } else {
+    scale <- NULL
+  }
+  
+  md <- forecastML::trainML(input = ts.obj,
+                            trend = list(linear = l_trend, power = pol),
+                            lags = lag,
+                            seasonal = season,
+                            scale = scale)
+  
+  p <- forecastML::plot_res(md)
+  return(p)
+  
+  
+})
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if("Linear Trend" %in% input$features){
+    l_trend <- TRUE
+  } else {
+    l_trend <- FALSE
+  }
+  
+  if("Seasonal" %in% input$features){
+    season <- "month"
+  } else {
+    season <-NULL
+  }
+  
+  
+  if("Polynomial" %in% input$features){
+    pol <- input$reg_pol
+  } else {
+    pol <- FALSE
+  }
+  
+  if("Seasonal Lag" %in% input$features){
+    lag <- 12
+  } else {
+    lag <- NULL
+  }
+  
+  
+  if("Log Transformation" %in% input$features){
+    scale <- "log"
+  } else {
+    scale <- NULL
+  }
+  
+  md <- forecastML::trainML(input = ts.obj,
+                            trend = list(linear = l_trend, power = pol),
+                            lags = lag,
+                            seasonal = season,
+                            scale = scale)
+  
+  fc <- forecastML::forecastML(md, h = input$reg_h)
+  p <- forecastML::plot_fc(fc)
+  return(p)
+  
+  
+})
 ```
+
+
+
