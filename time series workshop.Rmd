@@ -16,7 +16,7 @@ body{ /* Normal  */
       font-size: 20px;
   }
 td {  /* Table  */
-  font-size: 8px;
+  font-size: 20px;
 }
 h1.title {
   font-size: 38px;
@@ -36,7 +36,7 @@ h3 { /* Header 3 */
   color: DarkBlue;
 }
 code.r{ /* Code block */
-    font-size: 12px;
+    font-size: 16px;
 }
 pre { /* Code block - determines code spacing between lines */
     font-size: 14px;
