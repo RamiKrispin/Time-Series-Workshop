@@ -67,7 +67,13 @@ Today, we will mainly focus on methods for analyzing and forecasting regular tim
 
 ### Why R?
 
-* Statistical programming language 
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("Time Series with R.png")
+```
+
+
+* Open source and free
+* Statistical programming language
 * A vast amount of [packages](https://cran.r-project.org/web/views/TimeSeries.html) for time series analysis
 * The [forecast](http://pkg.robjhyndman.com/forecast/) package (and soon the [fable](https://fable.tidyverts.org/) package)
 
@@ -123,7 +129,8 @@ Of course, there are more great packages that could be part of this process such
 
 ### The TSstudio package
 
-The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set of functions for time series analysis. That includes interactive data visualization tools based on the [plotly](https://plot.ly/r/) package engine, supporting multiple time series objects such as `ts`, `xts`, and `zoo`. In addition, the package provides a set of utility functions for preprocessing time series data, and as well backtesting applications for forecasting models from the **forecast**, **forecastHybrid** and **bsts** packages.
+The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set of functions for time series analysis. That includes interactive data visualization tools based on the [plotly](https://plot.ly/r/) package engine, supporting multiple time series objects such as `ts`, `xts`, and `zoo`. The following diagram demonstrates the workflow of the **TSstudio** package:
+
 
 ```{r echo=FALSE, out.width="850px"}
 knitr::include_graphics("TSstudio Structure.png")
@@ -264,7 +271,7 @@ Monthly | Years | Month of the year | 12| `ts(x, start = c(2019, 1), frequency =
 Weekly | Years | Week of the year | 52 | `ts(x, start = c(2019, 13), frequency = 52)`
 Daily | Years | Day of the year | 365 | `ts(x, start = c(2019, 290), frequency = 365)`
 
-
+  
 What if you have more granular time series data such as half-hour, 15 or five minutes intervals?
 
 Me when needed to work with daily time series using `ts` object:
@@ -317,12 +324,18 @@ head(UKgrid)
 ```
 ```{r}
 library(dplyr)
-
+library(tsibble)
 uk_grid <- UKgrid %>% 
   dplyr::select(time = TIMESTAMP, 
                 net_demand = ND, 
                 wind_gen = EMBEDDED_WIND_GENERATION, 
-                solar_gen = EMBEDDED_SOLAR_GENERATION)
+                solar_gen = EMBEDDED_SOLAR_GENERATION) %>%
+  as_tsibble(index = time)
+  
+
+head(uk_grid)
+
+class(uk_grid)
 ```
 
 
