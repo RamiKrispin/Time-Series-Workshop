@@ -1,0 +1,892 @@
+---
+title: "Bay Area useR Group - Time Series Workshop"
+subtitle: ""
+author: "Rami Krispin (@Rami_Krispin), Danton Noriega (@dantonnoriega)"
+date: "`r format(as.Date('2019-10-05'), '%b %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    highlight: tango
+runtime: shiny
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 38px;
+  color: Black;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: #468cc8;
+}
+h2 { /* Header 2 */
+    font-size: 30px;
+  color: #468cc8;
+}
+h3 { /* Header 3 */
+  font-size: 25px;
+  color: #468cc8;
+}
+
+h4 { /* Header 4 */
+  font-size: 20px;
+  color: #81A4BE;
+}
+
+h5 { /* Header 4 */
+  color: #81A4BE;
+}
+
+
+
+d-code { /* Code block */
+    background-color: #f9f9f9;
+}
+
+code { /* Code block */
+    font-size: 16px;
+    color: #cc8c8c;
+    font-family: "Courier";
+}
+pre.text-output { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+    background-color: #ecf6ff;
+}
+</style>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
+library(TSstudio)
+library(UKgrid)
+library(shiny)
+```
+
+## Agenda
+
+* Introduction to time series analysis and forecasting
+* Time series objects - introduction to the time series classes and their attributes
+* Descriptive analysis of time series
+* Linear regression-based forecasting models
+* The ARIMA family of models
+
+Today, we will mainly focus on methods for analyzing and forecasting regular time-series data with seasonality patterns
+
+### Quick pool
+
+* Used R?
+* Feel comfortable with linear regression?
+* Familiar with the forecast package?
+* Used ggplot2 or plotly?
+
+
+### Assumptions
+
+* Some background in R
+* Basic knowledge in probability
+* Familiar with linear regression 
+
+### Why R?
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series with R.png")
+```
+
+
+* Open source and free
+* Statistical programming language
+* A vast amount of [packages](https://cran.r-project.org/web/views/TimeSeries.html) for time series analysis
+* The [forecast](http://pkg.robjhyndman.com/forecast/) package (and soon the [fable](https://fable.tidyverts.org/) package)
+
+### Goals
+By the end of this workshop, you probably won't become an expert in time series analysis and forecasting, but you will be able to:
+
+* Explore time series data with some basic tools
+* Use discriptive statistics for identifying seasonal and correlation patterns 
+* Build basic forecasting model
+
+### Admin
+
+#### Workshop material
+
+All today's slides, code, and rmarkdown files are available on [GitHub](https://github.com/RamiKrispin/Time-Series-Workshop)
+
+Downloading the workshop material from the terminal:
+
+```{bash, eval=FALSE}
+git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
+```
+
+
+#### Required packages
+
+```{r eval=FALSE}
+install.packages("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny")
+
+devtools::install_github("RamiKrispin/TSstudio")
+devtools::install_github("RamiKrispin/forecastML")
+
+```
+
+
+## Introduction to time series analysis
+
+Time series analysis is commonly used in many fields of science, such as economics, finance, physics, engineering, and astronomy.  The usage of time series analysis to understand past events and to predict future ones did not start with the introduction of the stochastic process during the past century. Ancient civilizations such as the Greeks, Romans, or Mayans, researched and learned how to utilize cycled events such as weather and astronomy to predict future events. 
+
+
+**Time series analysis** - is the art of extracting meaningful insights from time-series data to learn about past events and to predict future events. 
+
+This process includes the following steps:
+
+* **Data collection** - pulling the raw data from a database, API, flat files etc.
+* **Data prep** - cleaning, reformating (dates, classes, etc.), aggregating
+* **Descriptive analysis** - using statistical methods and data visualization tools to extract insights and learn about the series components and patterns
+* **Predictive analysis** - leveraging the insights learned in the descriptive process and apply some predictive model 
+
+
+Generally, in R this process will look like this:
+
+```{r echo=FALSE, out.width="850px"}
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series Analysis Workflow.png")
+```
+
+Of course, there are more great packages that could be part of this process such as [zoo](http://zoo.r-forge.r-project.org/), [xts](https://github.com/joshuaulrich/xts), [bsts](https://cran.r-project.org/web/packages/bsts/index.html), [forecastHybird](https://gitlab.com/dashaub/forecastHybrid), [prophet](https://facebook.github.io/prophet/docs/quick_start.html#r-api), etc.
+
+### The TSstudio package
+
+The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set of functions for time series analysis. That includes interactive data visualization tools based on the [plotly](https://plot.ly/r/) package engine, supporting multiple time series objects such as `ts`, `xts`, and `zoo`. The following diagram demonstrates the workflow of the **TSstudio** package:
+
+
+```{r echo=FALSE, out.width="850px"}
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/TSstudio Structure.png")
+```
+
+
+### Time series data
+
+**Time series data** - is a sequence of values, each associate to a unique point in time that can divide to the following two groups:
+
+* **Regular time series** - is a sequence of observations which were captured at equally spaced time intervals (e.g., every month, week, day, hour, etc.)
+* **Irregular time series** - or unevenly spaced time series, is a sequence of observations which were not captured on equally spaced time intervals (for example rainy days, earthquakes, clinical trials, etc.)
+
+
+
+**Note:** typically, the term time series data referred to regular time-series data. Therefore, if not stated otherwise, throughout the workshop the term time series (or series) refer to regular time-series data
+
+### Examples of time series data
+
+```{r  echo=FALSE, warning=FALSE, message=FALSE}
+library(UKgrid)
+
+data(UKgrid)
+UKgrid <- extract_grid(type = "data.frame", start = as.Date("2018-01-01"), end = as.Date("2018-01-31"))
+TSstudio::ts_plot(UKgrid, title = "The Demand for Electricity in the UK (Half-Hourly Intervals)", Ytitle = "MW", Xtitle = "Date")
+
+library(TSstudio)
+
+
+TSstudio::ts_plot(USgas, title = "US Monthly Natural Gas Consumption", Ytitle = "Billion Cubic Feet", Xtitle = "Date")
+TSstudio::ts_plot(USVSales, title = "US Monthly Total Vehicle Sales", Ytitle = "Thousands of Units", Xtitle = "Date")
+
+
+
+```
+
+
+### Applications
+
+With time series analysis, you can answer questions such as:
+
+* How many vehicles, **approximately**, going to be sold in the US in the next 12 months?
+* What will be the **estimated** demand for natural gas in the US in the next five years?
+* **Generally**, what will be the demand for electricity in the UK during the next 24 hours?
+
+
+## Time series objects
+
+There are multiple classes in R for time-series data, the most common types are:
+
+* The `ts` class for regular time-series data, and `mts` class for multiple time seires objects , the most common class for time series data
+* The `xts` and `zoo` classes for both regular and irregular time series data, mainly popular in the financial field
+* The `tsibble` class, a tidy format for time series data, support both regular and irregular time-series data
+
+### The attribute of time series object
+
+A typical time series object should have the following attributes:
+
+* A vector or matrix objects with sequential observations
+* Index or timestamp
+* Frequency units
+* Cycle units
+
+Where the frequency of the series represents the units of the cycle. For example, for monthly series, the frequency units are the month of the year, and the cycle units are the years. Similarly, for daily series, the frequency units could be the day of the year, and the cycle units are also the years. 
+
+The **stats** package provides a set of functions for handling and extracting information from a `ts` object. The `frequency` and `cycle` functions, as their names implay return the frequency and the cycle, respectivly, of the object. Let's load the `USgas` series from the `TSstudio` package  and apply those functions:
+
+```{r}
+library(TSstudio)
+data(USgas)
+
+class(USgas)
+is.ts(USgas)
+frequency(USgas)
+cycle(USgas)
+```
+
+The `time` function returns the series index or timestamp:
+
+```{r}
+head(time(USgas))
+```
+
+The `deltat` function returns the length of series' time interval (which is equivalent to 1/frequency):
+
+```{r}
+deltat(USgas)
+```
+
+Similarly, the `start` and `end` functions return the starting and ending time of the series, respectively:
+
+```{r}
+start(USgas)
+end(USgas)
+```
+
+Where the left number represents the cycle units, and the right side represents the frequency units of the series. The `tsp` function returns both the start and end of the series and its frequency:
+
+```{r}
+tsp(USgas)
+```
+
+Last but not least, the `ts_info` function from the **TSstudio** package returns a concise summary of the series:
+
+```{r}
+ts_info(USgas)
+```
+
+
+
+
+### Creating a ts object
+
+The `ts` function allows to create a `ts` object from a single vector and a `mts` object from a multiple vectors (or matrix). By defining the start (or end) and frequency of the series, the function generate the object index. In the following example we will load the `US_indicators` dataset from the TSstudio package and convert it to a ts object. The `US_indicators` is a `data.frame` with the monthly vehicle sales and unemployment rate in the US since 1976:
+
+
+```{r}
+data(US_indicators)
+
+head(US_indicators)
+```
+
+
+```{r}
+mts_obj <- ts(data = US_indicators[, c("Vehicle Sales", "Unemployment Rate")], 
+              start = c(1976, 1),
+              frequency = 12)
+
+ts_info(mts_obj)
+```
+
+### How to define the start and frequency arguments?
+
+Series Type | Cycle Units | Frequency Units| Frequency| Example
+------------|-------------|----------------|----------|---------
+Quarterly | Years | Quarter of the year | 4 | `ts(x, start = c(2019, 2), frequency = 4)`
+Monthly | Years | Month of the year | 12| `ts(x, start = c(2019, 1), frequency = 12)`
+Weekly | Years | Week of the year | 52 | `ts(x, start = c(2019, 13), frequency = 52)`
+Daily | Years | Day of the year | 365 | `ts(x, start = c(2019, 290), frequency = 365)`
+
+  
+What if you have more granular time series data such as half-hour, 15 or five minutes intervals?
+
+Me when needed to work with daily time series using `ts` object:
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("http://giphygifs.s3.amazonaws.com/media/eIPM3j6YXHKXC/giphy.gif")
+```
+
+### The disadvantages of the ts object
+ 
+The ts object was designed for work with monthly, quarterly, or yearly series that have only two-time components (e.g., year and month). Yet, more granular series (high frequency) may have more than two-time components. A common example is a daily series that has the following time attributes:
+
+* Year
+* Month
+* Day of the year
+* Day of the week
+
+When going to the hourly or minute levels, this is even adding more components such as the hour, minute, etc.
+
+The `zoo`, `xts` classes and now the `tsibble` class provide solution for this issue.  
+
+
+### The tsibble class
+
+"The **tsibble** package provides a data infrastructure for tidy temporal data with wrangling tools..." 
+
+In other words, the `tsibble` object allows you to work with a data frame alike (i.e., `tbl` object) with a time awareness attribute. The key characteristics of this class:
+
+* It has a date/time object as an index
+* Using key to store multiple time series objects
+* A `tbl` object - can apply any of the normal tools to reformat, clean or modify `tbl` object such as `dplyr` functions
+
+The reaction of me and my colegues when the tsibble **package** was released:
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("https://media.giphy.com/media/Yb3d5B1zwuhCo/giphy.gif")
+```
+
+
+### Creating a tsibble object
+
+```{r}
+library(UKgrid)
+
+data(UKgrid)
+
+class(UKgrid)
+
+head(UKgrid)
+```
+```{r}
+library(dplyr)
+library(tsibble)
+data(UKgrid)
+uk_grid <- UKgrid %>% 
+  dplyr::select(time = TIMESTAMP, 
+                net_demand = ND) %>%
+  tsibble::as_tsibble(index = time)
+  
+
+head(uk_grid)
+
+class(uk_grid)
+
+index(uk_grid)
+
+tsibble::interval(uk_grid)
+
+```
+
+
+## Descriptive analysis of time series
+
+Like most common fields of statistics and machine learning, the goal of the descriptive analysis is to reveal meaningful insights about the series with the use of descriptive statistics and data visualization tools.
+
+### Plotting time series object
+
+The `plot` function or `plot.ts` functions are R built-in functions for plotting time series object:
+
+
+```{r}
+data("USVSales")
+
+plot.ts(USVSales, 
+        main = "US Monthly Total Vehicle Sales",
+        ylab = "Thousands of units",
+        xlab = "Date")
+```
+
+Alternatively, the `ts_plot` function from the **TSstudio** package provides an interactive visualization for time series object (`ts`, `xts`, `zoo`, `tsibble`, ets.). This function using the **plotly** package plotting engine:
+
+```{r}
+ts_plot(USVSales, 
+        title = "US Monthly Total Vehicle Sales",
+        Ytitle = "Thousands of units",
+        Xtitle = "Date",
+        slider = TRUE)
+```
+
+The main advantage of using interactive data visualization tools that it allows you to zoom in the data with a click of a button. This is super useful when working with data and in particular, with time-series data. 
+
+The [dygraphs](https://rstudio.github.io/dygraphs/) package is another great tool for visualization time series data:
+
+```{r}
+library(dygraphs)
+
+dygraph(USVSales, 
+        main = "US Monthly Total Vehicle Sales",
+        ylab = "Thousands of units",
+        xlab = "Date") %>% 
+  dyRangeSelector()
+```
+
+
+
+
+### The time series components
+
+Time series data, typically, would have two types of patterns:
+
+**Structural patterns:**
+
+* **Trend** - define the general growth of the series and its rate (e.g., linear, exponential, etc.)
+* **Cycle** - derived from the broad definition of a cycle in macroeconomics. A cycle can be described as a sequence of repeatable events over time, where the starting point of a cycle is at a local minimum of the series and the ending point is at the next one, and the ending point of one cycle is the starting point of the following cycle.
+* **Seasonal** - define the variation of the series that related to the frequency units of the series 
+
+**Nonstructural patterns**
+
+The **irregular** component - which include any other patterns that are not captured by the trend, cycle, and seasonal components. For example structural changes, non-seasonal holidays effect, etc.
+
+Together, the structural and non-structural patterns compounding the series, which can be formalized by the following expressions:
+
+* $Y_t = T_t + C_t + S_t + I_t$, when the series has an additive structure, or
+
+* $Y_t = T_t \times C_t \times S_t \times I_t$, when the series has a multiplicative structure
+
+Applying log transformation on multiplicative series will transfome the series into additive structure:
+
+$log(Y_t) = log(T_t) + log(C_t) + log(S_t) + log(I_t)$
+
+We typically either ignore the cycle or embed it with the trend component, therefore:
+
+$$Y_t = T_t  + S_t + I_t$$
+
+
+### Decomposition of time series object
+
+The `decompose` function from the **stats** decompose a time series into seasonal, trend and irregular components using moving averages. The `ts_decompose` function from the **TSstudio** provides an interactive wraper for the `decompose` function:
+
+```{r}
+ts_decompose(USgas)
+```
+
+### Seasonal analysis
+
+Seasonality is one of the most dominant components in time series data (when exists) and it derived from the frequency units of the series (e.g., the month of the year for monthly time series data)
+
+Furthermore, as funny as it may sound, most of the seasonal patterns in nature are related to two astrophysical phenomena:
+
+* The orbit of Earth around the Sun (also known as the orbital period of Earth), which is defined as 365 days
+* The rotation of Earth (or solar day) with a length of 86,400 seconds or 24 hours
+
+For instance, the seasonality patterns of natural phenomena such as weather (temperature, rain, and snow fall), sunrise and sunset times, or the tide level are dictated directly from the orbital period and the solar time of Earth.
+
+Seasonal types:
+
+* Single seasonal pattern: Whenever there is only one dominant seasonal pattern in the series
+* Multiple seasonal patterns: If more than one dominant seasonal pattern exists in the series
+
+
+Data visualization helps to identify seasonal patterns in the series:
+
+```{r}
+library(TSstudio)
+
+data(USgas)
+
+USgas_df <- data.frame(year = floor(time(USgas)), month = cycle(USgas),
+   USgas = as.numeric(USgas))
+   # Setting the month abbreviation and transforming it to a factor
+   USgas_df$month <- factor(month.abb[USgas_df$month], levels = month.abb)
+   
+   
+library(ggplot2)
+    ggplot(USgas_df, aes(x = USgas)) +
+      geom_density(aes(fill = month)) +
+      ggtitle("USgas - Kernel Density Estimates by Month") +
+      facet_grid(rows = vars(as.factor(month)))
+```
+
+Note that this plot take into account the trend of the series, let's detrend the series and replot it:
+```{r}
+USgas_df <- data.frame(year = floor(time(USgas)), month = cycle(USgas),
+   USgas = as.numeric(USgas - decompose(USgas)$trend))
+   # Setting the month abbreviation and transforming it to a factor
+   USgas_df$month <- factor(month.abb[USgas_df$month], levels = month.abb)
+   
+   
+library(ggplot2)
+    ggplot(USgas_df, aes(x = USgas)) +
+      geom_density(aes(fill = month)) +
+      ggtitle("USgas - Kernel Density Estimates by Month") +
+      facet_grid(rows = vars(as.factor(month)))
+```
+
+The `ts_seasonal` function is a castumize function for seasonal plot of low-frequency time series data (e.g., daily, monthly, quarterly):
+
+```{r}
+ts_seasonal(USgas, type = "normal")
+ts_seasonal(USgas, type = "cycle")
+ts_seasonal(USgas, type = "box")
+```
+
+When setting the `type` argument to `all` it will combine the three plots together. Let's again detrend the series and see the seasonal component of the series:
+
+```{r}
+
+USgas_decompose <- USgas - decompose(USgas)$trend
+ts_seasonal(USgas_decompose, type = "all")
+```
+
+Similarly, we can use a heatmap, surface, or polar plots:
+
+
+```{r}
+ts_heatmap(USgas, color = "Reds")
+```
+
+
+```{r}
+ts_heatmap(USVSales, color = "Reds")
+```
+
+```{r}
+ts_surface(USgas)
+```
+
+
+
+```{r}
+ts_polar(USgas)
+```
+
+
+
+
+```{r}
+library(UKgrid)
+UKgrid_df <- extract_grid(type = "data.frame",
+                              columns = "ND",
+                              aggregate = "hourly",
+                              na.rm = TRUE)
+ts_quantile(UKgrid_df)
+
+ts_quantile(UKgrid_df, period = "weekdays", n = 2)
+
+ts_quantile(UKgrid_df, period = "monthly", n = 2)
+```
+
+
+
+### Correlation Analysis
+
+
+
+Due to the continuous and chronologically ordered nature of time series data, there is a likelihood that there will be some degree of correlation between the series observations. For instance, the temperature in the next hour is not a random event since, in most cases, it has a strong relationship with the current temperature or the temperatures that have occurred during the past 24 hours.
+
+In the context of forecasting and time series, we love correlated time series data!
+
+The `acf` and `pacf` functions from the **stats** package plot the Auto-Correlation and Partial Auto-Correlation of the series with its legs:
+
+```{r}
+UKgrid_daily <- extract_grid(type = "ts", aggregate = "daily")
+
+acf(UKgrid_daily)
+pacf(UKgrid_daily)
+
+
+```
+
+The `ts_cor` from the **TSstudio** return more details plot of the ACF and PACF of the function
+
+```{r}
+ts_cor(UKgrid_daily, lag.max = 365 * 2)
+
+
+
+ts_cor(UKgrid_daily, lag.max = 365 * 2, seasonal_lags = 7)
+```
+
+
+A more intuitive way to plot correlation is the lag plot, by plotting the series against its past lags:
+
+```{r}
+ts_lags(USgas)
+```
+
+```{r}
+ts_lags(USgas, lags = c(12, 24, 36))
+```
+
+## Forecasting with linear regression
+
+The primary usage of the linear regression model is to quantify the relationship between the dependent variable Y (also known as the response variable) and the independent variable/s X (also known as the predictors, drivers or regressors variables) in a linear manner.
+
+
+* In the case of a single independent variable:
+
+$$Y_{i} = \beta_{0} + \beta_{1}\times X_{1,i} + \epsilon_{i}$$
+
+* For n independent variables:
+
+$$Y_{i} = \beta_{0} + \beta_{1}\times X_{1,i} + \beta_{2}\times X_{2,i} + ...+ \beta_{n}\times X_{n,i} + \epsilon_{i}$$
+
+* i represents the observations index,  i = 1,..., N 
+* $Y_{i}$ the i observation of the dependent variable
+* $X_{j,i}$ the i value of the j independent variable, where j = 1,..., n
+* $\beta_{0}$ the value of the constant term (or intercept) 
+* $\beta_{j}$  the corresponded parameters (or coefficients) of the j independent variables, and
+* $\epsilon_{i}$ defines the error term, which nothing but all the information that was not captured by independent variables for the i observation
+
+
+
+**Big misconception **
+
+```{r echo=FALSE, out.width="650px"}
+knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/linear models.png")
+```
+
+
+The term linear, in the context of regression, referred to the model coefficients, which must follow a linear structure (as this allows us to construct a linear combination from the independent variables). On the other hand, the independent variables can follow a linear and non-linear formation.
+
+The Ordinary Least Squares method (or OLS) is a simple optimization method which is based on basic linear algebra and calculus, or matrix calculus (this section is for general knowledge if you are not familiar with matrix calculus you can skip this section). The goal of the OLS is to identify the coefficients that minimize the residuals sum of squares. If the residual of the i observation defines as:
+
+$$\hat{\epsilon_{i}} = Y_{i} - \hat{Y_{i}}$$
+
+Then we can set the cost function by the following expression:
+
+$$\sum_{i=1}^N \hat{\epsilon_{i}^2} = (Y_{1} - \hat{Y_{1}})^2 + (Y_{2} - \hat{Y_{2}})^2 + ... + (Y_{n} - \hat{Y_{n}})^2$$
+
+Before applying the OLS method for minimizing the residuals sum of squares, for simplicity reasons, we will transform the representative of the cost function into a matrix formation:
+
+
+$\mathbf{Y} = \left[\begin{array}{rrr}Y_{1} \\Y_{2} \\.\\.\\.\\Y_{N}\end{array}\right]$ , $\mathbf{X} = \left[\begin{array}{rrr}1 & X_{1,1}&.&.&.&X_{1,n} \\. \\.\\.\\1 & X_{N,1}&.&.&.&X_{N,n}\end{array}\right]$, $\mathbf{\beta} = \left[\begin{array}{rrr}\beta_{0} \\\beta_{1} \\.\\.\\.\\\beta_{n}\end{array}\right]$, $\mathbf{\epsilon} =Y-X\beta= \left[\begin{array}{rrr}\epsilon_{1} \\\epsilon_{2} \\.\\.\\.\\\epsilon_{N}\end{array}\right]$, 
+
+Where those set of matrices represents the following:
+
+* Vector Y (or $N\times 1$ matrix), representing a dependent variable with N observations
+* X - a matrix of $N\times n+1$, representing the corresponding n independent variables and a scalar of 1's for the intercept component ($\beta_{0}$)
+* $\beta$ - a vector or $(n+1)\times 1$ matrix, representing the model coefficients 
+* $\epsilon$ - a vector or $N\times 1$ matrix, representing the corresponding error rate or the difference between the Y and \$X\beta$
+
+
+**Note:** the residual term $\hat{\epsilon_{i}}$ should not be confused with the error term $\epsilon_{i}$.While the first represents the difference between the series Y and its estimate $\hat{Y}$, the second (error term) represents the difference between the series and its expected value
+
+Let's set the cost function using the matrix form as we defined above:
+$$\sum {\epsilon^2} = {\epsilon}^T{\epsilon}$$ 
+
+We will now start to expand this expression by using the formula of $\epsilon$ as we outlined above:
+
+$${\epsilon}^T{\epsilon}  = (Y-X\beta)^T(Y-X\beta)$$
+
+Next, we will multiply the two components ($\epsilon^T$ and $\epsilon$) and open the brackets:
+
+
+$$\epsilon ^{T}\epsilon = Y^TY-2Y^TX\beta+\beta^TX^TX\beta$$
+
+Since our goal is to find the $\beta$ that minimizes  this equation, we will differentiate the equation with respect to $\beta$ and then set it to zero:
+
+$$ \frac{\partial\epsilon ^{T}\epsilon}{\partial \beta}=\frac{\partial (Y^TY-2Y^TX\beta+\beta^TX^TX\beta)}{\partial\beta} = 0$$
+
+Solving this equation will yield the following output:
+
+$$X^TX\beta=X^TY$$
+Manipulating this equation, allow us to extract $\hat{\beta}$ matrix, the estimate of the coefficient matrix $\beta$:
+
+$$\hat\beta=(X^TX)^{-1}X^TY$$
+
+**Note:** that we changed the notation of $\beta$  to $\hat\beta$ on the final output as it represents the estimate of the true value of $\beta$.
+
+The key properties of the OLS coefficients estimation:
+
+* The main feature of the OLS coefficients estimation method is the unbiasedness of the coefficients estimation with respect to the actual values. In other words, for any given $\hat\beta_{i}$,   $E(\hat\beta_{i}) = \beta_{i}$
+* The sample regression line will always go through the mean of X and Y
+* The mean of $\hat{Y}$ is equal to the $\overline{Y}$, the mean the dependent variable 
+* The mean of the residuals vector $\hat\epsilon$ is equal to zero, or $\frac{\sum_{i = 1}^{N}\hat\epsilon_{i}}{N} = 0$
+
+
+
+### The OLS assumptions
+
+* The model coefficients must follow a linear structure (e.g., $Y = \hat\beta_{0} + \hat\beta_{1} e^{X}$ is linear model but   $Y = \hat\beta_{0} + X_{1} ^ \hat\ beta_{1}$ is not)
+* There is no perfect collineariy between the indepandent variables, $X_{1}, X_{2},...,X_{n}$. In other words, non of the indepandent variable is a linear combination of any of the other indepandent variables 
+* All the independent variables must be a non zero variance (or non-constant)
+* The error term $\epsilon$, condition on the matrix of independent variables X, is independent and identically distributed (i.i.d) variable with mean 0 and constance variance $\sigma^2$
+* Both the dependent and independent variables are drawing from the population in a random sample. This assumption is not holding when regressing time series data, as typically the observations have some degree of correlation. Therefore this assumption is relaxed when regressing time series data. 
+
+### Transforming time series problem into linear regression problem
+
+We want to represent the different components of the series in a linear model formation:
+
+$Y_{t} = T_{t} + S_{t} + C_{t} + I_{t}$, when the series has an additive structure, or
+
+$Y_{t} = T_{t} \times S_{t} \times C_{t} \times I_{t}$, when the series has an multiplicative structure, where
+
+
+Features creating is the name of the game here...
+
+### Shiny example
+
+```{r regression, echo=FALSE}
+
+inputPanel(
+  selectInput("select_series", label = "Select the Series:",
+              choices = c("USgas", "USVSales", "AirPassengers"), selected = "USgas",
+              width = "600px"),
+  
+  selectInput("select_plot", label = "Plot Type",
+              choices = c("Plot", "Decompose", "Seasonal", "Heatmap","Lags", "P/ACF"), selected = "Plot",
+              width = "600px")
+  
+)
+
+
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if(input$select_plot == "Plot"){
+    p <- TSstudio::ts_plot(ts.obj = ts.obj)
+  } else if(input$select_plot == "Decompose"){
+    p <- TSstudio::ts_decompose(ts.obj = ts.obj)
+  } else if(input$select_plot == "Seasonal"){
+    p <- TSstudio::ts_seasonal(ts.obj = ts.obj, type = "all")
+  } else if(input$select_plot == "Lags"){
+    p <- TSstudio::ts_lags(ts.obj = ts.obj)
+  } else if(input$select_plot == "P/ACF"){
+    p <- TSstudio::ts_cor(ts.obj = ts.obj, lag.max = 36)
+  } else if(input$select_plot == "Heatmap"){
+    p <- TSstudio::ts_heatmap(ts.obj = ts.obj)
+  }
+  return(p)
+})
+
+
+inputPanel(checkboxGroupInput(inputId = "features", label = "Select the Model Features",
+                              choices = c("Linear Trend", "Seasonal", "Polynomial", "Seasonal Lag", "Log Transformation"), selected = "Linear Trend"),
+           # sliderInput("reg_test", "Set the Testing Length:",
+           #               min = 1, max = 60,
+           #               value = 12),
+           sliderInput("reg_h", "Set the Forecasting Horizon:",
+                       min = 1, max = 60,
+                       value = 12),
+           
+           sliderInput("reg_pol", "Set the Polynomial Level:",
+                       min = 0, max = 3,
+                       value = 2,
+                       step = 0.1)
+           
+)
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if("Linear Trend" %in% input$features){
+    l_trend <- TRUE
+  } else {
+    l_trend <- FALSE
+  }
+  
+  if("Seasonal" %in% input$features){
+    season <- "month"
+  } else {
+    season <-NULL
+  }
+  
+  
+  if("Polynomial" %in% input$features){
+    pol <- input$reg_pol
+  } else {
+    pol <- FALSE
+  }
+  
+  if("Seasonal Lag" %in% input$features){
+    lag <- 12
+  } else {
+    lag <- NULL
+  }
+  
+  
+  if("Log Transformation" %in% input$features){
+    scale <- "log"
+  } else {
+    scale <- NULL
+  }
+  
+  md <- forecastML::trainML(input = ts.obj,
+                            trend = list(linear = l_trend, power = pol),
+                            lags = lag,
+                            seasonal = season,
+                            scale = scale)
+  
+  p <- forecastML::plot_res(md)
+  return(p)
+  
+  
+})
+
+plotly::renderPlotly({
+  if(input$select_series == "USgas"){
+    ts.obj <- USgas
+  } else if(input$select_series == "USVSales"){
+    ts.obj <- USVSales
+  } else if(input$select_series == "AirPassengers"){
+    ts.obj <- AirPassengers
+  }
+  
+  
+  if("Linear Trend" %in% input$features){
+    l_trend <- TRUE
+  } else {
+    l_trend <- FALSE
+  }
+  
+  if("Seasonal" %in% input$features){
+    season <- "month"
+  } else {
+    season <-NULL
+  }
+  
+  
+  if("Polynomial" %in% input$features){
+    pol <- input$reg_pol
+  } else {
+    pol <- FALSE
+  }
+  
+  if("Seasonal Lag" %in% input$features){
+    lag <- 12
+  } else {
+    lag <- NULL
+  }
+  
+  
+  if("Log Transformation" %in% input$features){
+    scale <- "log"
+  } else {
+    scale <- NULL
+  }
+  
+  md <- forecastML::trainML(input = ts.obj,
+                            trend = list(linear = l_trend, power = pol),
+                            lags = lag,
+                            seasonal = season,
+                            scale = scale)
+  
+  fc <- forecastML::forecastML(md, h = input$reg_h)
+  p <- forecastML::plot_fc(fc)
+  return(p)
+  
+  
+})
+```
+
+
+## ARIMA
+
+```{r arima-child, child = "time-series-workshop-arima.Rmd", include=TRUE}
+```
