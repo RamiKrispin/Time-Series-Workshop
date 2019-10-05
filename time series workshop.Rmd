@@ -71,7 +71,6 @@ Today, we will mainly focus on methods for analyzing and forecasting regular tim
 * Used ggplot2 or plotly?
 
 
-
 ### Assumptions
 
 * Some background in R
@@ -107,6 +106,17 @@ Downloading the workshop material from the terminal:
 
 ```{bash, eval=FALSE}
 git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
+```
+
+
+#### Required packages
+
+```{r eval=FALSE}
+install.packages("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny")
+
+devtools::install_github("RamiKrispin/TSstudio")
+devtools::install_github("RamiKrispin/forecastML")
+
 ```
 
 
