@@ -16,7 +16,7 @@ body{ /* Normal  */
       font-size: 20px;
   }
 td {  /* Table  */
-  font-size: 20px;
+  font-size: 16px;
 }
 h1.title {
   font-size: 38px;
@@ -57,7 +57,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, mes
 * Linear regression-based forecasting models
 * The ARIMA family of models
 
-We will mainly focus today on methods for analyzing and forecasting regular time-series data with seasonality patterns
+Today, we will mainly focus on methods for analyzing and forecasting regular time-series data with seasonality patterns
 
 ### Assumptions
 
@@ -119,7 +119,15 @@ Generally, in R this process will look like this:
 knitr::include_graphics("images/Time Series Analysis Workflow.png")
 ```
 
-Of course, there are more great packages that could be part of this process such as `zoo`, `xts`, `bsts`, `forecastHybird`, `TSstudio`, etc.
+Of course, there are more great packages that could be part of this process such as [zoo](http://zoo.r-forge.r-project.org/), [xts](https://github.com/joshuaulrich/xts), [bsts](https://cran.r-project.org/web/packages/bsts/index.html), [forecastHybird](https://gitlab.com/dashaub/forecastHybrid), [prophet](https://facebook.github.io/prophet/docs/quick_start.html#r-api), etc.
+
+### The TSstudio package
+
+The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set of functions for time series analysis. That includes interactive data visualization tools based on the [plotly](https://plot.ly/r/) package engine, supporting multiple time series objects such as `ts`, `xts`, and `zoo`. In addition, the package provides a set of utility functions for preprocessing time series data, and as well backtesting applications for forecasting models from the **forecast**, **forecastHybrid** and **bsts** packages.
+
+```{r echo=FALSE, out.width="850px"}
+knitr::include_graphics("TSstudio Structure.png")
+```
 
 
 ### Time series data
@@ -249,17 +257,17 @@ ts_info(mts_obj)
 
 ### How to define the start and frequency arguments?
 
-Series Type | Cycle Units | Frequency Units| Frequency
-------------|-------------|----------------|-----------
-Quarterly | Years | Quarter of the year | 4
-Monthly | Years | Month of the year | 12
-Weekly | Years | Week of the year | 52
-Daily | Years | Day of the year | 365
+Series Type | Cycle Units | Frequency Units| Frequency| Example
+------------|-------------|----------------|----------|---------
+Quarterly | Years | Quarter of the year | 4 | `ts(x, start = c(2019, 2), frequency = 4)`
+Monthly | Years | Month of the year | 12| `ts(x, start = c(2019, 1), frequency = 12)`
+Weekly | Years | Week of the year | 52 | `ts(x, start = c(2019, 13), frequency = 52)`
+Daily | Years | Day of the year | 365 | `ts(x, start = c(2019, 290), frequency = 365)`
 
 
 What if you have more granular time series data such as half-hour, 15 or five minutes intervals?
 
-Below me when needed to work with daily time series using `ts` object:
+Me when needed to work with daily time series using `ts` object:
 
 ```{r echo=FALSE, out.width="650px"}
 knitr::include_graphics("http://giphygifs.s3.amazonaws.com/media/eIPM3j6YXHKXC/giphy.gif")
