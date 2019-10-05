@@ -1,0 +1,71 @@
+---
+title: "Bay Area useR Group - Time Series Workshop - ARIMA"
+subtitle: ""
+date: "2019-10-05"
+author:
+  - name: "Rami Krispin"
+    url: http://twitter.com/rami_krispin
+  - name: "Danton Noriega"
+    url: http://twitter.com/dantonnoriega
+output: 
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: console
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 38px;
+  color: Black;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: #468cc8;
+}
+h2 { /* Header 2 */
+    font-size: 30px;
+  color: #468cc8;
+}
+h3 { /* Header 3 */
+  font-size: 25px;
+  color: #468cc8;
+}
+
+h4 { /* Header 4 */
+  font-size: 20px;
+  color: #81A4BE;
+}
+
+h5 { /* Header 4 */
+  color: #81A4BE;
+}
+
+
+
+d-code { /* Code block */
+    background-color: #f9f9f9;
+}
+
+code { /* Code block */
+    font-size: 16px;
+    color: #cc8c8c;
+    font-family: "Courier";
+}
+pre.text-output { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+    background-color: #ecf6ff;
+}
+</style>
+
+```{r arima-child, child = "time-series-workshop-arima.Rmd"}
+```
