@@ -9,7 +9,6 @@ output:
     toc_float: true
     toc_depth: 3
     highlight: tango
-runtime: shiny
 ---
 
 <style type="text/css">
@@ -131,7 +130,7 @@ git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 #### Required packages
 
 ```{r eval=FALSE}
-install.packages("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny", "tsibble", "dygraph")
+install.packages(c("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny", "tsibble", "dygraphs"))
 
 devtools::install_github("RamiKrispin/TSstudio")
 devtools::install_github("RamiKrispin/forecastML")
@@ -888,5 +887,5 @@ plotly::renderPlotly({
 
 ## ARIMA
 
-```{r arima-child, child = "time-series-workshop-arima.Rmd", include=TRUE}
+```{r arima-child, child = "time-series-workshop-arima.Rmd", include=FALSE}
 ```

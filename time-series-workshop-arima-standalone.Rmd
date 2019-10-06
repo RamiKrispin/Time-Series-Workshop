@@ -50,15 +50,14 @@ h5 { /* Header 4 */
   color: #81A4BE;
 }
 
-
-
 d-code { /* Code block */
     background-color: #f9f9f9;
 }
 
 code { /* Code block */
     font-size: 16px;
-    color: #cc8c8c;
+    color: #be8181;
+    background-color: #f5f5f5;
     font-family: "Courier";
 }
 pre.text-output { /* Code block - determines code spacing between lines */
@@ -66,6 +65,11 @@ pre.text-output { /* Code block - determines code spacing between lines */
     background-color: #ecf6ff;
 }
 </style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE, layout="l-body-outset", out.extra="class=external")
+```
+
 
 ```{r arima-child, child = "time-series-workshop-arima.Rmd"}
 ```
