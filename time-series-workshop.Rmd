@@ -1,14 +1,20 @@
 ---
 title: "Bay Area useR Group - Time Series Workshop"
-subtitle: ""
 author: "Rami Krispin (@Rami_Krispin), Danton Noriega (@dantonnoriega)"
 date: "`r format(as.Date('2019-10-05'), '%b %d, %Y')`"
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
-    toc_depth: 3
+    df_print: paged
+    toc: yes
+    toc_depth: '3'
+  html_notebook:
     highlight: tango
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+subtitle: ''
+editor_options:
+  chunk_output_type: inline
 ---
 
 <style type="text/css">
@@ -68,7 +74,6 @@ pre.text-output { /* Code block - determines code spacing between lines */
 knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
 library(TSstudio)
 library(UKgrid)
-library(shiny)
 ```
 
 ## Agenda
@@ -356,6 +361,7 @@ class(UKgrid)
 
 head(UKgrid)
 ```
+
 ```{r}
 library(dplyr)
 library(tsibble)
@@ -716,7 +722,8 @@ Features creating is the name of the game here...
 
 ### Shiny example
 
-```{r regression, echo=FALSE}
+```{r regression, echo=FALSE, include = F}
+library(shiny)
 
 inputPanel(
   selectInput("select_series", label = "Select the Series:",

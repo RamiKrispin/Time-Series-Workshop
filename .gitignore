@@ -1,3 +1,4 @@
+*.nb.html
 .Rproj.user
 .Rhistory
 .RData

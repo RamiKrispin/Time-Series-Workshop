@@ -1,6 +1,6 @@
 # Required packages
 
-install.packages(c("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny", "tsibble", "dygraphs"))
+install.packages(c("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny", "tsibble", "dygraphs"), dep = TRUE)
 
-devtools::install_github("RamiKrispin/TSstudio")
-devtools::install_github("RamiKrispin/forecastML")
+devtools::install_github("RamiKrispin/TSstudio", force = TRUE)
+devtools::install_github("RamiKrispin/forecastML", force = TRUE)
