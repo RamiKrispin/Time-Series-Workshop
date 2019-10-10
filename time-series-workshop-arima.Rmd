@@ -1,5 +1,5 @@
 
-## Sources - ARIMA
+### Sources - ARIMA
 
 - [Northwest Fisheries Science Center - Applied Time Series Analysis](https://nwfsc-timeseries.github.io)
   - [NWFSC - FISH 507, Lecture 2: ARMA Models by Mark Scheuerell ](https://github.com/nwfsc-timeseries/atsa/blob/master/Lectures/Week%202/lec_03_ARMA_models.Rmd)
@@ -9,7 +9,7 @@
   - [FPP - Chapter 9: Dynamic regression models by Rob Hyndman and George Athanasopoulos](https://otexts.com/fpp2/dynamic.html)
 
 
-## Brief Overview
+### Brief Overview
 
 - White Noise and Random Walks
 - Autoregressive (AR) models
@@ -17,7 +17,7 @@
 - Autoregressive moving average (ARMA) models
 - Using ACF & PACF for model ID
 
-## Goals
+### Goals
 
 Leave this room with a shallow understanding of
 
@@ -37,7 +37,7 @@ Leave this room with a shallow understanding of
 
 ---
 
-### Gaussian white noise
+#### Gaussian white noise
 
 We often assume so-called _Gaussian white noise_, whereby
 
@@ -73,7 +73,7 @@ acf(tt, main = "")
 title(expression(w[t] %~% N(0,1)), outer = TRUE)
 ```
 
-## Random walk (RW)
+### Random walk (RW)
 
 A time series $\{x_t\}$ is a random walk if
 
@@ -91,7 +91,7 @@ title(expression(list(x[t] == x[t-1] + w[t], w[t] %~% N(0,1))), outer = T)
 ```
 
 
-### Biased random walk
+#### Biased random walk
 
 A _biased random walk_ (or _random walk with drift_) is written as
 
@@ -115,7 +115,7 @@ title(expression(list(x[t] == x[t-1] + 1 + w[t], w[t] %~% N(0,1))), outer = T)
 ```
 
 
-### Differencing a biased random walk
+#### Differencing a biased random walk
 
 First-differencing a biased random walk yields a constant mean (level) $u$ plus white noise
 
@@ -140,7 +140,7 @@ title(expression(list(paste(Delta, x[t]) == 1 + w[t],w[t] %~% N(0,1))), outer = 
 ---
 
 
-## Autoregressive (AR) models
+### Autoregressive (AR) models
 
 Autoregressive models treat a current state of nature as a function its past state(s)
 
@@ -156,7 +156,7 @@ where we assume
 2. $\phi_p \neq 0$ for an order-_p_ process
 
 
-### Examples of AR(_p_) models
+#### Examples of AR(_p_) models
 
 - AR(1)
   - $x_t = 0.5 x_{t-1} + w_t$
@@ -186,7 +186,7 @@ for(p in 1:4) {
 }
 ```
 
-### Stationary AR(_p_) models
+#### Stationary AR(_p_) models
 
 > **Stationarity** means 'not changing in time' in the context of time-series models. More generally, if all statistical properties of a time-series are time-constant then a time series is 'stationary'.
 
@@ -336,16 +336,16 @@ mtext(side = 3, expression(paste(phi[1]," = 0.1")),
 
 ---
 
-## ACF & PACF for AR(_p_) models
+### ACF & PACF for AR(_p_) models
 
-### Autocorrelation function (ACF)
+#### Autocorrelation function (ACF)
 
 Recall that the _autocorrelation function_ ($\rho_k$) measures the correlation between $\{x_t\}$ and a shifted version of itself $\{x_{t+k}\}$ 
 
 
-### ACF for AR(1) models
+#### ACF for AR(1) models
 
-#### ACF oscillates for model with $-\phi$
+##### ACF oscillates for model with $-\phi$
 
 ```{r, fig.cap=" "}
 ### set the margins & text size
@@ -388,7 +388,7 @@ acf(AR1_sm, lag.max = 20, las = 1)
 ```
 
 
-### Partial autocorrelation funcion (PACF)
+#### Partial autocorrelation funcion (PACF)
 
 Recall that the _partial autocorrelation function_ ($\phi_k$) measures the correlation between $\{x_t\}$ and a shifted version of itself $\{x_{t+k}\}$, with the linear dependence of $\{x_{t-1},x_{t-2},\dots,x_{t-k-1}\}$ removed
 
@@ -422,7 +422,7 @@ for(p in 1:2) {
 ```
 
 
-### PACF for AR(_p_) models
+#### PACF for AR(_p_) models
 
 ```{r, fig.cap=" "}
 ### empty list for storing models
@@ -444,7 +444,7 @@ for(p in 1:4) {
 > Do you see the link between the order _p_ and lag _k_?
 
 
-### Using ACF & PACF for model ID (1)
+#### Using ACF & PACF for model ID (1)
 
 | Model   | ACF               | PACF                    |
 |:-------:|:-----------------:|:-----------------------:|
@@ -452,7 +452,7 @@ for(p in 1:4) {
 
 ---
 
-## Moving average (MA) models
+### Moving average (MA) models
 
 
 Moving average models are most commonly used for forecasting a future state
@@ -481,7 +481,7 @@ Each of the $x_t$ is a sum of the most recent error terms
 
 Thus, _all_ MA processes are stationary because they are finite sums of stationary WN processes
 
-#### Examples of MA(_q_) models
+##### Examples of MA(_q_) models
 
 ```{r, fig.cap=" "}
 ### the 4 MA coefficients
@@ -508,7 +508,7 @@ for(q in 1:4) {
 ```
 
 
-#### Compare MA(1) & MA(2) with similar structure
+##### Compare MA(1) & MA(2) with similar structure
 
 ```{r, fig.cap=" "}
 MA1 <- arima.sim(n=50, list(ma=c(0.7)))
@@ -534,7 +534,7 @@ mtext(side = 3,
 ---
 
 
-## AR(_p_) model as an MA($\infty$) model
+### AR(_p_) model as an MA($\infty$) model
 
 It is possible to write an AR(_p_) model as an MA($\infty$) model
 
@@ -571,7 +571,7 @@ $$
 
 
 
-## Invertible MA(_q_) models
+### Invertible MA(_q_) models
 
 An MA(_q_) process is invertible if it can be written as a _stationary autoregressive process of infinite order without an error term_
 
@@ -611,7 +611,7 @@ $$
 
 > A: It helps us identify the model's parameters
 
-#### Example, these MA(1) models are equivalent
+##### Example, these MA(1) models are equivalent
 
 - $x_t = w_t + \frac{1}{5} w_{t-1}, ~\text{with} ~w_t \sim ~\text{N}(0,25)$
 - $x_t = w_t + 5 w_{t-1}, ~\text{with} ~w_t \sim ~\text{N}(0,1)$
@@ -619,7 +619,7 @@ $$
 But we select the first model because it is invertable (the coefficient is less than 1).
 
 
-## ACF & PACF for MA(_q_) models
+### ACF & PACF for MA(_q_) models
 
 ```{r, fig.cap=" "}
 ### set 3 AR coefficients
@@ -651,7 +651,7 @@ for(p in 1:2) {
 ```
 
 
-### ACF for MA(_q_) models
+#### ACF for MA(_q_) models
 
 ```{r, fig.cap=" "}
 ### the 4 MA coefficients
@@ -676,7 +676,7 @@ for(q in 1:4) {
 > Do you see the link between the order _q_ and lag _k_?
 
 
-### Using ACF & PACF for model ID (2)
+#### Using ACF & PACF for model ID (2)
 
 | Model   | ACF               | PACF                    |
 |:-------:|:-----------------:|:-----------------------:|
@@ -685,7 +685,7 @@ for(q in 1:4) {
 
 ---
 
-## Autoregressive moving average models (ARMA)
+### Autoregressive moving average models (ARMA)
 
 An autoregressive moving average, or ARMA(_p_,_q_), model is written as
 
@@ -705,7 +705,7 @@ ARMA models are _stationary_ if all roots of $\phi_p (\mathbf{B}) > 1$
 ARMA models are _invertible_ if all roots of $\theta_q (\mathbf{B}) > 1$
 
 
-### Examples of ARMA(_p_,_q_) models
+#### Examples of ARMA(_p_,_q_) models
 
 ```{r, fig.cap=" "}
 set.seed(123)
@@ -740,7 +740,7 @@ for(i in 1:4) {
 ```
 
 
-### ACF for ARMA(_p_,_q_) models
+#### ACF for ARMA(_p_,_q_) models
 
 ```{r, fig.cap=" "}
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
@@ -756,7 +756,7 @@ for(i in 1:4) {
 ```
 
 
-### PACF for ARMA(_p_,_q_) models
+#### PACF for ARMA(_p_,_q_) models
 
 ```{r, fig.cap=" "}
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
@@ -772,7 +772,7 @@ for(i in 1:4) {
 ```
 
 
-### Using ACF & PACF for model ID (3)
+#### Using ACF & PACF for model ID (3)
 
 | Model   | ACF               | PACF                    |
 |:-------:|:-----------------:|:-----------------------:|
@@ -782,7 +782,7 @@ for(i in 1:4) {
 
 ---
 
-## Autoregressive integrated moving average (ARIMA) models
+### Autoregressive integrated moving average (ARIMA) models
 
 If the data do not appear stationary, differencing can help
 
@@ -791,7 +791,7 @@ This leads to the class of _autoregressive integrated moving average_ (ARIMA) mo
 ARIMA models are indexed with orders (_p_,_d_,_q_) where _d_ indicates the order of differencing
 
 
-### ARIMA(_p_,_d_,_q_) models
+#### ARIMA(_p_,_d_,_q_) models
 
 For $d > 0$, $\{x_t\}$ is an ARIMA(_p_,_d_,_q_) process if $(1-\mathbf{B})^d x_t$ is an ARMA(_p_,_q_) process
 
@@ -821,9 +821,9 @@ pacf(diff(yy), main = "")
 
 ---
 
-## Automating the Box-Jenkins method
+### Automating the Box-Jenkins method
 
-### Box-Jenkins Method
+#### Box-Jenkins Method
 
 - Model form selection
   - Evaluate stationarity
@@ -835,7 +835,7 @@ pacf(diff(yy), main = "")
 
 Fortunately, the Box-Jenkins method is automated with the **forecast** package function `forecast::auto.arima`.
 
-### `forecast::auto.arima`
+#### `forecast::auto.arima`
 
 Let's look at some examples of `auto.arima` in action using simulated data.
 
@@ -901,7 +901,7 @@ However, keep in mind, when it comes to working with real time series data *one 
 
 ---
 
-## Seasonal ARIMA (SARIMA)
+### Seasonal ARIMA (SARIMA)
 
 ```{r, fig.cap="Source: https://otexts.com/fpp2/seasonal-arima.html", echo = FALSE}
 knitr::include_graphics("SARIMA-pdq.png")
@@ -935,7 +935,7 @@ euretail %>%
   forecast::ggtsdisplay()
 ```
 
-### `auto.arima` with Seasonal data
+#### `auto.arima` with Seasonal data
 
 ```{r}
 
@@ -952,7 +952,7 @@ fit %>%
 
 ---
 
-## Dynamic Linear Regression (Linear Models with ARIMA errors)
+### Dynamic Linear Regression (Linear Models with ARIMA errors)
 
 ```{r}
 library(fpp2)
@@ -1050,7 +1050,7 @@ fc_gg +
   ggplot2::theme(legend.position = 'none')
 ```
 
-### Deterministic vs Stochastic Trends
+#### Deterministic vs Stochastic Trends
 
 Take a model that regresses on a trend variable $t$
 
@@ -1071,7 +1071,7 @@ See [Chapter 9.4 of FPP](https://otexts.com/fpp2/stochastic-and-deterministic-tr
 
 ---
 
-## A Rant About Maximum Likelihood Estimation
+### A Rant About Maximum Likelihood Estimation
 
 ARIMA estimation relies on Maximum Likelihood Estimate (MLE). This matters because it means, as you get new data, parameters are *re-estimated* using the old series plus the new.
 
