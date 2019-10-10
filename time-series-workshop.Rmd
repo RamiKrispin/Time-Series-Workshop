@@ -2,16 +2,11 @@
 title: "Bay Area useR Group - Time Series Workshop"
 author: "Rami Krispin (@Rami_Krispin), Danton Noriega (@dantonnoriega)"
 date: "`r format(as.Date('2019-10-05'), '%b %d, %Y')`"
-output:
+output: 
   html_document:
-    df_print: paged
-    toc: yes
-    toc_depth: '3'
-  html_notebook:
-    highlight: tango
-    toc: yes
+    toc: true
+    toc_float: true
     toc_depth: 3
-    toc_float: yes
 subtitle: ''
 editor_options:
   chunk_output_type: inline
@@ -138,7 +133,12 @@ git clone https://github.com/RamiKrispin/Time-Series-Workshop.git
 ```{r eval=FALSE}
 install.packages(c("forecast", "plotly", "ggplot2", "dplyr", "UKgrid", "fpp2", "shiny", "tsibble", "dygraphs"))
 
+# We will use the dev version of TSstudio as some of 
+# the features will use today are not yet on CRAN (will be by end of Oct)
 devtools::install_github("RamiKrispin/TSstudio")
+
+# This package is on early development mode, 
+# will use it for the linear regression shiny example
 devtools::install_github("RamiKrispin/forecastML")
 
 ```
@@ -639,7 +639,7 @@ $$Y_{i} = \beta_{0} + \beta_{1}\times X_{1,i} + \beta_{2}\times X_{2,i} + ...+ \
 **Big misconception **
 
 ```{r echo=FALSE, out.width="650px"}
-knitr::include_graphics(paste(image_path ,"/images/linear models.png", sep = ""))
+knitr::include_graphics(paste(image_path ,"/linear models.png", sep = ""))
 ```
 
 
@@ -723,6 +723,13 @@ Features creating is the name of the game here...
 
 ### Shiny example
 
+To launch shiny example please run the following code:
+
+```{r eval=FALSE}
+source("https://raw.githubusercontent.com/RamiKrispin/Time-Series-Workshop/master/Linear%20regression%20model%20-%20shiny%20example.R")
+
+shinyApp(ui = ui, server = server)
+```
 
 
 
