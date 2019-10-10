@@ -719,7 +719,7 @@ $Y_{t} = T_{t} + S_{t} + C_{t} + I_{t}$, when the series has an additive structu
 $Y_{t} = T_{t} \times S_{t} \times C_{t} \times I_{t}$, when the series has an multiplicative structure, where
 
 
-Features creating is the name of the game here...
+Features creating is the name of the game here... Let's use Shiny to demonstrate how the key features impact the forecast
 
 ### Shiny example
 
