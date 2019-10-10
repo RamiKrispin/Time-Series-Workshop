@@ -735,5 +735,5 @@ shinyApp(ui = ui, server = server)
 
 ## ARIMA
 
-```{r arima-child, child = "time-series-workshop-arima.Rmd", include=FALSE}
+```{r arima-child, child = "time-series-workshop-arima.Rmd", include=TRUE}
 ```
