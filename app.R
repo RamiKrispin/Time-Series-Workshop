@@ -1,8 +1,30 @@
+packages_list <- c("shiny", "magrittr", "devtools", "plotly")
+
+for(i in packages_list){
+    if(!i %in% rownames(installed.packages())){
+        install.packages(i)
+    }
+}
+
+if("TSstudio" %in% rownames(installed.packages())){
+    if(packageVersion("TSstudio") != "0.1.5"){
+        devtools::install_github("RamiKrispin/TSstudio")
+    }
+} else {
+    devtools::install_github("RamiKrispin/TSstudio")
+}
+
+if(!"forecastML" %in% rownames(installed.packages())){
+        devtools::install_github("RamiKrispin/forecastML")
+}
+
+
+
+
 library(shiny)
 library(TSstudio)
 library(magrittr)
-# install.packages("devtools")
-# devtools::install_github("RamiKrispin/forecastML")
+library(plotly)
 library(forecastML)
 
 # Define UI for application that draws a histogram
