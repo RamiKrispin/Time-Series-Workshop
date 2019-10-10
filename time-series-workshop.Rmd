@@ -15,6 +15,7 @@ output:
 subtitle: ''
 editor_options:
   chunk_output_type: inline
+runtime: shiny
 ---
 
 <style type="text/css">
