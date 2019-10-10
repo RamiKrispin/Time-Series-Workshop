@@ -726,7 +726,7 @@ Features creating is the name of the game here... Let's use Shiny to demonstrate
 To launch shiny example please run the following code:
 
 ```{r eval=FALSE}
-source("https://raw.githubusercontent.com/RamiKrispin/Time-Series-Workshop/master/Linear%20regression%20model%20-%20shiny%20example.R")
+source("https://raw.githubusercontent.com/RamiKrispin/Time-Series-Workshop/master/app.R")
 
 shinyApp(ui = ui, server = server)
 ```
