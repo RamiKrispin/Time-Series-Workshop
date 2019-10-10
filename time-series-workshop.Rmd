@@ -15,7 +15,6 @@ output:
 subtitle: ''
 editor_options:
   chunk_output_type: inline
-runtime: shiny
 ---
 
 <style type="text/css">
@@ -75,6 +74,7 @@ pre.text-output { /* Code block - determines code spacing between lines */
 knitr::opts_chunk$set(echo = TRUE, fig.width=9, fig.height=5, warning=FALSE, message=FALSE)
 library(TSstudio)
 library(UKgrid)
+image_path <- paste(rprojroot::find_rstudio_root_file(), "/images", sep = "")
 ```
 
 ## Agenda
@@ -104,7 +104,7 @@ Today, we will mainly focus on methods for analyzing and forecasting regular tim
 ### Why R?
 
 ```{r echo=FALSE, out.width="650px"}
-knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series with R.png")
+knitr::include_graphics(paste(image_path ,"/Time Series with R.png", sep = ""))
 ```
 
 
@@ -162,7 +162,7 @@ This process includes the following steps:
 Generally, in R this process will look like this:
 
 ```{r echo=FALSE, out.width="850px"}
-knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/Time Series Analysis Workflow.png")
+knitr::include_graphics(paste(image_path ,"/Time Series Analysis Workflow.png", sep = ""))
 ```
 
 Of course, there are more great packages that could be part of this process such as [zoo](http://zoo.r-forge.r-project.org/), [xts](https://github.com/joshuaulrich/xts), [bsts](https://cran.r-project.org/web/packages/bsts/index.html), [forecastHybird](https://gitlab.com/dashaub/forecastHybrid), [prophet](https://facebook.github.io/prophet/docs/quick_start.html#r-api), etc.
@@ -173,7 +173,7 @@ The [TSstudio](https://github.com/RamiKrispin/TSstudio) package provides a set o
 
 
 ```{r echo=FALSE, out.width="850px"}
-knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/TSstudio Structure.png")
+knitr::include_graphics(paste(image_path ,"/TSstudio Structure.png", sep = ""))
 ```
 
 
@@ -639,7 +639,7 @@ $$Y_{i} = \beta_{0} + \beta_{1}\times X_{1,i} + \beta_{2}\times X_{2,i} + ...+ \
 **Big misconception **
 
 ```{r echo=FALSE, out.width="650px"}
-knitr::include_graphics("/Users/ramikrispin/R/packages/Slides/Time-Series-Workshop/images/linear models.png")
+knitr::include_graphics(paste(image_path ,"/images/linear models.png", sep = ""))
 ```
 
 
@@ -723,174 +723,7 @@ Features creating is the name of the game here...
 
 ### Shiny example
 
-```{r regression, echo=FALSE, include = F}
-library(shiny)
 
-inputPanel(
-  selectInput("select_series", label = "Select the Series:",
-              choices = c("USgas", "USVSales", "AirPassengers"), selected = "USgas",
-              width = "600px"),
-  
-  selectInput("select_plot", label = "Plot Type",
-              choices = c("Plot", "Decompose", "Seasonal", "Heatmap","Lags", "P/ACF"), selected = "Plot",
-              width = "600px")
-  
-)
-
-
-
-plotly::renderPlotly({
-  if(input$select_series == "USgas"){
-    ts.obj <- USgas
-  } else if(input$select_series == "USVSales"){
-    ts.obj <- USVSales
-  } else if(input$select_series == "AirPassengers"){
-    ts.obj <- AirPassengers
-  }
-  
-  
-  if(input$select_plot == "Plot"){
-    p <- TSstudio::ts_plot(ts.obj = ts.obj)
-  } else if(input$select_plot == "Decompose"){
-    p <- TSstudio::ts_decompose(ts.obj = ts.obj)
-  } else if(input$select_plot == "Seasonal"){
-    p <- TSstudio::ts_seasonal(ts.obj = ts.obj, type = "all")
-  } else if(input$select_plot == "Lags"){
-    p <- TSstudio::ts_lags(ts.obj = ts.obj)
-  } else if(input$select_plot == "P/ACF"){
-    p <- TSstudio::ts_cor(ts.obj = ts.obj, lag.max = 36)
-  } else if(input$select_plot == "Heatmap"){
-    p <- TSstudio::ts_heatmap(ts.obj = ts.obj)
-  }
-  return(p)
-})
-
-
-inputPanel(checkboxGroupInput(inputId = "features", label = "Select the Model Features",
-                              choices = c("Linear Trend", "Seasonal", "Polynomial", "Seasonal Lag", "Log Transformation"), selected = "Linear Trend"),
-           # sliderInput("reg_test", "Set the Testing Length:",
-           #               min = 1, max = 60,
-           #               value = 12),
-           sliderInput("reg_h", "Set the Forecasting Horizon:",
-                       min = 1, max = 60,
-                       value = 12),
-           
-           sliderInput("reg_pol", "Set the Polynomial Level:",
-                       min = 0, max = 3,
-                       value = 2,
-                       step = 0.1)
-           
-)
-
-plotly::renderPlotly({
-  if(input$select_series == "USgas"){
-    ts.obj <- USgas
-  } else if(input$select_series == "USVSales"){
-    ts.obj <- USVSales
-  } else if(input$select_series == "AirPassengers"){
-    ts.obj <- AirPassengers
-  }
-  
-  
-  if("Linear Trend" %in% input$features){
-    l_trend <- TRUE
-  } else {
-    l_trend <- FALSE
-  }
-  
-  if("Seasonal" %in% input$features){
-    season <- "month"
-  } else {
-    season <-NULL
-  }
-  
-  
-  if("Polynomial" %in% input$features){
-    pol <- input$reg_pol
-  } else {
-    pol <- FALSE
-  }
-  
-  if("Seasonal Lag" %in% input$features){
-    lag <- 12
-  } else {
-    lag <- NULL
-  }
-  
-  
-  if("Log Transformation" %in% input$features){
-    scale <- "log"
-  } else {
-    scale <- NULL
-  }
-  
-  md <- forecastML::trainML(input = ts.obj,
-                            trend = list(linear = l_trend, power = pol),
-                            lags = lag,
-                            seasonal = season,
-                            scale = scale)
-  
-  p <- forecastML::plot_res(md)
-  return(p)
-  
-  
-})
-
-plotly::renderPlotly({
-  if(input$select_series == "USgas"){
-    ts.obj <- USgas
-  } else if(input$select_series == "USVSales"){
-    ts.obj <- USVSales
-  } else if(input$select_series == "AirPassengers"){
-    ts.obj <- AirPassengers
-  }
-  
-  
-  if("Linear Trend" %in% input$features){
-    l_trend <- TRUE
-  } else {
-    l_trend <- FALSE
-  }
-  
-  if("Seasonal" %in% input$features){
-    season <- "month"
-  } else {
-    season <-NULL
-  }
-  
-  
-  if("Polynomial" %in% input$features){
-    pol <- input$reg_pol
-  } else {
-    pol <- FALSE
-  }
-  
-  if("Seasonal Lag" %in% input$features){
-    lag <- 12
-  } else {
-    lag <- NULL
-  }
-  
-  
-  if("Log Transformation" %in% input$features){
-    scale <- "log"
-  } else {
-    scale <- NULL
-  }
-  
-  md <- forecastML::trainML(input = ts.obj,
-                            trend = list(linear = l_trend, power = pol),
-                            lags = lag,
-                            seasonal = season,
-                            scale = scale)
-  
-  fc <- forecastML::forecastML(md, h = input$reg_h)
-  p <- forecastML::plot_fc(fc)
-  return(p)
-  
-  
-})
-```
 
 
 ## ARIMA
