@@ -176,7 +176,7 @@ output$p3 <-    plotly::renderPlotly({
                                   scale = scale)
         
         fc <- forecastML::forecastML(md, h = input$reg_h)
-        p <- forecastML::plot_fc(fc)
+        p <- forecastML::plot_fc(fc) %>% layout(legend = list(x = 0.1, y = 0.9))
         return(p)
         
         
