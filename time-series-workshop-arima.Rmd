@@ -1,5 +1,7 @@
 
-### Sources - ARIMA
+### Sources
+
+I borrowed aggressively from the following:
 
 - [Northwest Fisheries Science Center - Applied Time Series Analysis](https://nwfsc-timeseries.github.io)
   - [NWFSC - FISH 507, Lecture 2: ARMA Models by Mark Scheuerell ](https://github.com/nwfsc-timeseries/atsa/blob/master/Lectures/Week%202/lec_03_ARMA_models.Rmd)
@@ -8,21 +10,13 @@
   - [FPP - Chapter 8.9: Seasonal ARIMA models by Rob Hyndman and George Athanasopoulos](https://otexts.com/fpp2/seasonal-arima.html)
   - [FPP - Chapter 9: Dynamic regression models by Rob Hyndman and George Athanasopoulos](https://otexts.com/fpp2/dynamic.html)
 
-
-### Brief Overview
-
-- White Noise and Random Walks
-- Autoregressive (AR) models
-- Moving average (MA) models
-- Autoregressive moving average (ARMA) models
-- Using ACF & PACF for model ID
-
 ### Goals
 
 Leave this room with a shallow understanding of
 
 - Stationarity
 - Differencing
+- AR and MA models
 - ARMA Identification
 
 | Model   | ACF               | PACF                    |
@@ -218,7 +212,7 @@ $$
 \phi_p (\mathbf{B}) = 0
 $$
 
-To be stationary, __all roots__ of the characteristic equation __must exceed 1 in absolute value__
+To be stationary, __all roots__ of the characteristic equation __lie outside the unit cirle__. If the roots are real numbers, then all roots must __exceed 1 in absolute value__. If the roots are complex numbers, then the magnitude of each complex number must __exceed 1__ but no in absolute value i.e. a root with the form $a+bi$ must imply $\sqrt{a^2 + b^2} > 1$.
 
 ##### Example: Consider the AR(1) model from earlier
 
@@ -240,17 +234,17 @@ This model is stationary because $\mathbf{B} > 1$
 
 $$
 \begin{align}
-  x_t &= -0.2 x_{t-1} + 0.4 x_{t-2} + w_t \\
-  x_t + 0.2 x_{t-1} - 0.4 x_{t-2} &= w_t \\
-  (1 + 0.2 \mathbf{B} - 0.4 \mathbf{B}^2)x_t &= w_t \\
+  x_t &= -0.2 x_{t-1} + 0.9 x_{t-2} + w_t \\
+  x_t + 0.2 x_{t-1} - 0.9 x_{t-2} &= w_t \\
+  (1 + 0.2 \mathbf{B} - 0.9 \mathbf{B}^2)x_t &= w_t \\
   \Downarrow \\
-  1 + 0.2 \mathbf{B} - 0.4 \mathbf{B}^2 &= 0 \\
+  1 + 0.2 \mathbf{B} - 0.9 \mathbf{B}^2 &= 0 \\
   \Downarrow \\
-  \mathbf{B} \approx -1.35 ~ \text{and}& ~ \mathbf{B} \approx 1.85
+  \mathbf{B} \approx -0.948 ~ \text{and}& ~ \mathbf{B} \approx 1.171
 \end{align}
 $$
 
-This model is _not_ stationary because only one $\mathbf{B} > 1$
+This model is _not_ stationary because only one $|\mathbf{B}| > 1$
 
 
 ##### What about random walks?
@@ -1058,12 +1052,12 @@ $$
 y_t = \beta_0 + \beta_1 t + \eta_t
 $$
 
-- The trend will be **determenistic** if $eta_t$ follows an ARMA process (not integrated; `d=0`)
-- The trend will be **stochastic** if $eta_t$ follows an ARIMA process (integrated; `d > 0`)
+- The trend will be **determenistic** if $\eta_t$ follows an ARMA process (not integrated; `d=0`)
+- The trend will be **stochastic** if $\eta_t$ follows an ARIMA process (integrated; `d > 0`)
 
-The stochastic trend occurs because when `d > 1` the error term $eta_t$, will carry information for $y_{t-1}$ forward, not just residual error from the past, $eta_{t-1}$.
+The stochastic trend occurs because when `d > 1` the error term $\eta_t$, will carry information for $y_{t-1}$ forward, not just residual error from the past, $eta_{t-1}$.
 
-For example, if $eta_t$ is `ARIMA(1,1,0)`, this model can be rewritten
+For example, if $\eta_t$ is `ARIMA(1,1,0)`, this model can be rewritten
 
 $$\Delta y_{t-1} = \beta_1 + \Delta$$
 
@@ -1102,7 +1096,7 @@ title( # so much code just for a fancy title...
 invisible(lapply(rev(seq.int(4)), function(i) lines(xxs[[i]], col = i)))
 ```
 
-The true model is `ARIMA(2,0,)`. You see below that the model fit to each expanding series has not only a changing order `(p,d,q)`, but also changing coefficients.
+The true model is `ARIMA(2,0,1)`. You see below that the model fit to each expanding series has not only a changing order `(p,d,q)`, but also changing coefficients.
 
 This is largely a due to how `forecast::auto.arima` searches for and determines the best fitting model.
 
