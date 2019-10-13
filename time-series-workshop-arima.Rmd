@@ -1,5 +1,7 @@
 
-### Sources - ARIMA
+### Sources
+
+I borrowed aggressively from the following:
 
 - [Northwest Fisheries Science Center - Applied Time Series Analysis](https://nwfsc-timeseries.github.io)
   - [NWFSC - FISH 507, Lecture 2: ARMA Models by Mark Scheuerell ](https://github.com/nwfsc-timeseries/atsa/blob/master/Lectures/Week%202/lec_03_ARMA_models.Rmd)
@@ -8,21 +10,13 @@
   - [FPP - Chapter 8.9: Seasonal ARIMA models by Rob Hyndman and George Athanasopoulos](https://otexts.com/fpp2/seasonal-arima.html)
   - [FPP - Chapter 9: Dynamic regression models by Rob Hyndman and George Athanasopoulos](https://otexts.com/fpp2/dynamic.html)
 
-
-### Brief Overview
-
-- White Noise and Random Walks
-- Autoregressive (AR) models
-- Moving average (MA) models
-- Autoregressive moving average (ARMA) models
-- Using ACF & PACF for model ID
-
 ### Goals
 
 Leave this room with a shallow understanding of
 
 - Stationarity
 - Differencing
+- AR and MA models
 - ARMA Identification
 
 | Model   | ACF               | PACF                    |
@@ -168,16 +162,16 @@ where we assume
 
 ```{r, fig.cap=" "}
 set.seed(123)
-### the 4 AR coefficients
+#### the 4 AR coefficients
 ARp <- c(0.7, 0.2, -0.1, -0.3)
-### empty list for storing models
+#### empty list for storing models
 AR_mods <- vector("list", 4L)
 
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(p in 1:4) {
-  ## assume SD=1, so not specified
+  ### assume SD=1, so not specified
   AR_mods[[p]] <- arima.sim(n=50, list(ar=ARp[1:p]))
   plot.ts(AR_mods[[p]], las = 1,
           ylab = expression(italic(x[t])))
@@ -218,9 +212,9 @@ $$
 \phi_p (\mathbf{B}) = 0
 $$
 
-To be stationary, __all roots__ of the characteristic equation __must exceed 1 in absolute value__
+To be stationary, __all roots__ of the characteristic equation __lie outside the unit cirle__. If the roots are real numbers, then all roots must __exceed 1 in absolute value__. If the roots are complex numbers, then the magnitude of each complex number must __exceed 1__ but no in absolute value i.e. a root with the form $a+bi$ must imply $\sqrt{a^2 + b^2} > 1$.
 
-#### Example: Consider the AR(1) model from earlier
+##### Example: Consider the AR(1) model from earlier
 
 $$
 \begin{align}
@@ -236,24 +230,24 @@ $$
 
 This model is stationary because $\mathbf{B} > 1$
 
-#### What about this AR(2) model from earlier?
+##### What about this AR(2) model from earlier?
 
 $$
 \begin{align}
-  x_t &= -0.2 x_{t-1} + 0.4 x_{t-2} + w_t \\
-  x_t + 0.2 x_{t-1} - 0.4 x_{t-2} &= w_t \\
-  (1 + 0.2 \mathbf{B} - 0.4 \mathbf{B}^2)x_t &= w_t \\
+  x_t &= -0.2 x_{t-1} + 0.9 x_{t-2} + w_t \\
+  x_t + 0.2 x_{t-1} - 0.9 x_{t-2} &= w_t \\
+  (1 + 0.2 \mathbf{B} - 0.9 \mathbf{B}^2)x_t &= w_t \\
   \Downarrow \\
-  1 + 0.2 \mathbf{B} - 0.4 \mathbf{B}^2 &= 0 \\
+  1 + 0.2 \mathbf{B} - 0.9 \mathbf{B}^2 &= 0 \\
   \Downarrow \\
-  \mathbf{B} \approx -1.35 ~ \text{and}& ~ \mathbf{B} \approx 1.85
+  \mathbf{B} \approx -0.948 ~ \text{and}& ~ \mathbf{B} \approx 1.171
 \end{align}
 $$
 
-This model is _not_ stationary because only one $\mathbf{B} > 1$
+This model is _not_ stationary because only one $|\mathbf{B}| > 1$
 
 
-#### What about random walks?
+##### What about random walks?
 
 Consider our random walk model
 
@@ -272,27 +266,27 @@ $$
 Random walks are __not__ stationary because $\mathbf{B} = 1 \ngtr 1$
 
 
-### Coefficients of AR(1) models
+#### Coefficients of AR(1) models
 
-#### Same value, but different sign
+##### Same value, but different sign
 
 ```{r ar_comp_pos_neg, fig.height=4, fig.cap=" "}
 set.seed(123)
-### list description for AR(1) model with small coef
+#### list description for AR(1) model with small coef
 AR_pos <- list(order=c(1,0,0), ar=0.7, sd=0.1)
-### list description for AR(1) model with large coef
+#### list description for AR(1) model with large coef
 AR_neg <- list(order=c(1,0,0), ar=-0.7, sd=0.1)
-### simulate AR(1)
+#### simulate AR(1)
 AR1_pos <- arima.sim(n=500, model=AR_pos)
 AR1_neg <- arima.sim(n=500, model=AR_neg)
 
-### get y-limits for common plots
+#### get y-limits for common plots
 ylm1 <- c(min(AR1_pos[1:50],AR1_neg[1:50]), max(AR1_pos[1:50],AR1_neg[1:50]))
 
-### set the margins & text size
+#### set the margins & text size
 par(mfrow = c(1,2), mai = c(.6,0.6,0.1,0.2), oma = c(0,0,1.5,0), 
     mgp = c(1.7,.6,0))
-### plot the ts
+#### plot the ts
 plot.ts(AR1_pos[1:50], ylim=ylm1, las = 1,
         ylab=expression(italic(x)[italic(t)]))
 mtext(side = 3, expression(paste(phi[1]," = 0.7")),
@@ -303,25 +297,25 @@ mtext(side = 3, expression(paste(phi[1]," = -0.7")),
       line = 0.4, adj = 0, cex = 0.8)
 ```
 
-#### Both positive, but different magnitude
+##### Both positive, but different magnitude
 
 ```{r ar_comp_sm_big, fig.height=4, fig.cap=" "}
 set.seed(123)
-### list description for AR(1) model with small coef
+#### list description for AR(1) model with small coef
 AR_bg <- list(order=c(1,0,0), ar=0.9, sd=0.1)
-### list description for AR(1) model with large coef
+#### list description for AR(1) model with large coef
 AR_sm <- list(order=c(1,0,0), ar=0.1, sd=0.1)
-### simulate AR(1)
+#### simulate AR(1)
 AR1_bg <- arima.sim(n=500, model=AR_bg)
 AR1_sm <- arima.sim(n=500, model=AR_sm)
 
-### get y-limits for common plots
+#### get y-limits for common plots
 ylm2 <- c(min(AR1_bg[1:50],AR1_sm[1:50]), max(AR1_bg[1:50],AR1_sm[1:50]))
 
-### set the margins & text size
+#### set the margins & text size
 par(mfrow = c(1,2), mai = c(.6,0.6,0.1,0.2), oma = c(0,0,1.5,0), 
     mgp = c(1.7,.6,0))
-### plot the ts
+#### plot the ts
 plot.ts(AR1_bg[1:50], ylim = ylm2, las = 1,
         ylab = expression(italic(x)[italic(t)]),
         main = "")
@@ -348,10 +342,10 @@ Recall that the _autocorrelation function_ ($\rho_k$) measures the correlation b
 ##### ACF oscillates for model with $-\phi$
 
 ```{r, fig.cap=" "}
-### set the margins & text size
+#### set the margins & text size
 par(mfrow=c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### plot the ts
+#### plot the ts
 plot.ts(AR1_pos[1:50], ylim=ylm1, las = 1,
         ylab=expression(italic(x)[italic(t)]),
         main = "")
@@ -366,13 +360,13 @@ mtext(side = 3, expression(paste(phi[1]," = -0.7")),
 acf(AR1_neg, lag.max = 20, las = 1)
 ```
 
-#### For model with large $\phi$, ACF has longer tail
+##### For model with large $\phi$, ACF has longer tail
 
 ```{r, fig.cap=" "}
-### set the margins & text size
+#### set the margins & text size
 par(mfrow=c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### plot the ts
+#### plot the ts
 plot.ts(AR1_bg[1:50], ylim = ylm2, las = 1,
         ylab = expression(italic(x)[italic(t)]),
         main = "")
@@ -393,7 +387,7 @@ acf(AR1_sm, lag.max = 20, las = 1)
 Recall that the _partial autocorrelation function_ ($\phi_k$) measures the correlation between $\{x_t\}$ and a shifted version of itself $\{x_{t+k}\}$, with the linear dependence of $\{x_{t-1},x_{t-2},\dots,x_{t-k-1}\}$ removed
 
 ```{r, fig.cap=" "}
-### set 3 AR coefficients
+#### set 3 AR coefficients
 ARp3 <- list(c(0.7, 0.2, -0.1), c(-0.7, 0.2, 0.1))
 
 expr <- list(expression(paste("AR(3) with ", phi[1], " = 0.7, ",
@@ -401,14 +395,14 @@ expr <- list(expression(paste("AR(3) with ", phi[1], " = 0.7, ",
              expression(paste("AR(3) with ", phi[1], " = -0.7, ",
                               phi[2], " = 0.2, ", phi[3], " = 0.1")))
 
-### empty list for storing models
+#### empty list for storing models
 AR3_mods <- vector("list", 2L)
 
 par(mfrow = c(2,3), mai = c(0.5,0.4,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.8, .7, 0), cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(p in 1:2) {
-  ## assume SD=1, so not specified
+  ### assume SD=1, so not specified
   AR3_mods[[p]] <- arima.sim(n=5000, list(ar=ARp3[[p]]))
   plot.ts(AR3_mods[[p]][1:50], las = 1,
           ylab = expression(italic(x[t])))
@@ -425,12 +419,12 @@ for(p in 1:2) {
 #### PACF for AR(_p_) models
 
 ```{r, fig.cap=" "}
-### empty list for storing models
+#### empty list for storing models
 pacf_mods <- vector("list", 4L)
 
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(p in 1:4) {
   pacf_mods[[p]] <- arima.sim(n=5000, list(ar=ARp[1:p]))
   pacf(pacf_mods[[p]], lag.max = 15,
@@ -484,21 +478,21 @@ Thus, _all_ MA processes are stationary because they are finite sums of stationa
 ##### Examples of MA(_q_) models
 
 ```{r, fig.cap=" "}
-### the 4 MA coefficients
+#### the 4 MA coefficients
 MAq <- c(0.7, 0.2, -0.1, -0.3)
-### empty list for storing models
+#### empty list for storing models
 MA_mods <- vector("list", 4L)
-### loop over orders of q
+#### loop over orders of q
 for(q in 1:4) {
-  ## assume SD=1, so not specified
+  ### assume SD=1, so not specified
   MA_mods[[q]] <- arima.sim(n=500, list(ma=MAq[1:q]))
 }
 
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(q in 1:4) {
-  ## assume SD=1, so not specified
+  ### assume SD=1, so not specified
   plot.ts(MA_mods[[q]][1:50], las = 1,
           ylab = expression(italic(x[t])))
   mtext(side = 3, paste0("MA(",q,")"),
@@ -516,7 +510,7 @@ MA2 <- arima.sim(n=50, list(ma=c(-1, 0.7)))
 
 par(mfrow = c(1,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 plot.ts(MA1, las = 1,
         ylab = expression(italic(x[t])))
 mtext(side = 3,
@@ -622,7 +616,7 @@ But we select the first model because it is invertable (the coefficient is less 
 ### ACF & PACF for MA(_q_) models
 
 ```{r, fig.cap=" "}
-### set 3 AR coefficients
+#### set 3 AR coefficients
 set.seed(123)
 MAp3 <- list(c(0.7), c(-0.7, 0.5, 0.2))
 
@@ -630,14 +624,14 @@ expr <- list(expression(paste("MA(1) with ", theta[1], " = 0.7, ")),
              expression(paste("MA(3) with ", theta[1], " = -0.7, ",
                               theta[2], " = 0.5, ", theta[3], " = 0.2")))
 
-### empty list for storing models
+#### empty list for storing models
 MA3_mods <- vector("list", 2L)
 
 par(mfrow = c(2,3), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(p in 1:2) {
-  ## assume SD=1, so not specified
+  ### assume SD=1, so not specified
   MA3_mods[[p]] <- arima.sim(n=500, model = list(ma=MAp3[[p]]))
   plot.ts(MA3_mods[[p]][1:50], las = 1,
           ylab = expression(italic(x[t])))
@@ -654,16 +648,16 @@ for(p in 1:2) {
 #### ACF for MA(_q_) models
 
 ```{r, fig.cap=" "}
-### the 4 MA coefficients
+#### the 4 MA coefficients
 set.seed(123)
 MAq <- c(0.7, 0.5, -0.2, -0.3)
 
-### empty list for storing models
+#### empty list for storing models
 acf_mods <- vector("list", 4L)
 
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(q in 1:4) {
   acf_mods[[p]] <- arima.sim(n=5000, list(ma=MAq[1:q]))
   acf(acf_mods[[p]], lag.max = 15,
@@ -711,13 +705,13 @@ ARMA models are _invertible_ if all roots of $\theta_q (\mathbf{B}) > 1$
 set.seed(123)
 arma_mods <- vector("list", 4L)
 
-### ARMA(3,1): phi[1] = 0.7, phi[2] = 0.2, phi[3] = -0.1, theta[1]= 0.5
+#### ARMA(3,1): phi[1] = 0.7, phi[2] = 0.2, phi[3] = -0.1, theta[1]= 0.5
 arma_mods[[1]] <- arima.sim(list(ar=c(0.7, 0.2, -0.1), ma=c(0.5)), n=5000)
-### ARMA(2,2): phi[1] = -0.7, phi[2] = 0.2, theta[1] = 0.7, theta[2]= 0.2
+#### ARMA(2,2): phi[1] = -0.7, phi[2] = 0.2, theta[1] = 0.7, theta[2]= 0.2
 arma_mods[[2]] <- arima.sim(list(ar=c(-0.7, 0.2), ma=c(0.7, 0.2)), n=5000)
-### ARMA(1,3): phi[1] = 0.7, theta[1] = 0.7, theta[2]= 0.2, theta[3] = 0.5
+#### ARMA(1,3): phi[1] = 0.7, theta[1] = 0.7, theta[2]= 0.2, theta[3] = 0.5
 arma_mods[[3]] <- arima.sim(list(ar=c(0.7), ma=c(0.7, 0.2, 0.5)), n=5000)
-### ARMA(2,2): phi[1] = 0.7, phi[2] = 0.2, theta[1] = 0.7, theta[2]= 0.2
+#### ARMA(2,2): phi[1] = 0.7, phi[2] = 0.2, theta[1] = 0.7, theta[2]= 0.2
 arma_mods[[4]] <- arima.sim(list(ar=c(0.7, 0.2), ma=c(0.7, 0.2)), n=5000)
 
 titles <- list(
@@ -729,7 +723,7 @@ titles <- list(
 
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(i in 1:4) {
   plot.ts(arma_mods[[i]][1:50], las = 1,
           main = "", ylab = expression(italic(x[t])))
@@ -745,7 +739,7 @@ for(i in 1:4) {
 ```{r, fig.cap=" "}
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(i in 1:4) {
   acf(arma_mods[[i]][1:1000], las = 1,
           main = " ")
@@ -761,7 +755,7 @@ for(i in 1:4) {
 ```{r, fig.cap=" "}
 par(mfrow = c(2,2), mai = c(0.6,0.5,0.3,0.1), oma = c(0,0,1.5,0), 
     mgp = c(1.7, .5, 0), cex.axis = .8, cex.axis = 0.8, tcl = -.3)
-### loop over orders of p
+#### loop over orders of p
 for(i in 1:4) {
   pacf(arma_mods[[i]][1:1000], las = 1,
           main = "")
@@ -860,7 +854,7 @@ stats::arima(xx, order = c(1,0,1), include.mean = F)
 stats::arima(yy, order = c(1,1,1), include.mean = F)
 
 # estimate with forecast::auto.arima
-## finds ARMA(1,1) with similar parameter estimates
+### finds ARMA(1,1) with similar parameter estimates
 forecast::auto.arima(xx)
 forecast::auto.arima(yy)
 
@@ -885,7 +879,7 @@ plot.ts(yy, las = 1,
         ylab=expression(italic(y[t])))
 
 # estimate when knowing the order
-## pretty good estimates
+### pretty good estimates
 stats::arima(xx, order = c(2,0,2), include.mean = F)
 stats::arima(yy, order = c(2,1,2), include.mean = F)
 
@@ -1018,10 +1012,10 @@ add_zero <- function(v, spots = 2) {
   })
 }
 
-## income is also no very interesting
+### income is also no very interesting
 forecast::autoplot(fc_income) # ARIMA(0,0,0)
 
-## instead, lets simulate possible paths.
+### instead, lets simulate possible paths.
 N = 30 # simulations
 sim_mat <- lapply(1:N, function(x) {
   forecast:::simulate.Arima(fit_income, nsim = H)
@@ -1058,12 +1052,12 @@ $$
 y_t = \beta_0 + \beta_1 t + \eta_t
 $$
 
-- The trend will be **determenistic** if $eta_t$ follows an ARMA process (not integrated; `d=0`)
-- The trend will be **stochastic** if $eta_t$ follows an ARIMA process (integrated; `d > 0`)
+- The trend will be **determenistic** if $\eta_t$ follows an ARMA process (not integrated; `d=0`)
+- The trend will be **stochastic** if $\eta_t$ follows an ARIMA process (integrated; `d > 0`)
 
-The stochastic trend occurs because when `d > 1` the error term $eta_t$, will carry information for $y_{t-1}$ forward, not just residual error from the past, $eta_{t-1}$.
+The stochastic trend occurs because when `d > 1` the error term $\eta_t$, will carry information for $y_{t-1}$ forward, not just residual error from the past, $eta_{t-1}$.
 
-For example, if $eta_t$ is `ARIMA(1,1,0)`, this model can be rewritten
+For example, if $\eta_t$ is `ARIMA(1,1,0)`, this model can be rewritten
 
 $$\Delta y_{t-1} = \beta_1 + \Delta$$
 
@@ -1102,7 +1096,7 @@ title( # so much code just for a fancy title...
 invisible(lapply(rev(seq.int(4)), function(i) lines(xxs[[i]], col = i)))
 ```
 
-The true model is `ARIMA(2,0,)`. You see below that the model fit to each expanding series has not only a changing order `(p,d,q)`, but also changing coefficients.
+The true model is `ARIMA(2,0,1)`. You see below that the model fit to each expanding series has not only a changing order `(p,d,q)`, but also changing coefficients.
 
 This is largely a due to how `forecast::auto.arima` searches for and determines the best fitting model.
 
